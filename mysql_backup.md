@@ -370,7 +370,7 @@ mysql                                     NodePort       10.233.12.52    <none> 
 
 - 파드 외부에서 접속 방법
 ```
-ubuntu@ta-task-cluster-1:~/edu$ mysql -h 115.68.198.92 -P 30044 -u root -p
+ubuntu@ta-task-cluster-1:~/edu$ mysql -h [masternode IP] -P 30044 -u root -p
 
 ```
 ### <div id='7-1-2'/>7.1.2 내부에서 접속 방법
@@ -449,7 +449,7 @@ spec:
           - name: mysql-yang
             image: mysql:5.6
             command: ["/bin/bash"]
-            args: ["-c", "mysqldump -h 115.68.198.92 -P 30044 -u root -p$MYSQL_ROOT_PASSWORD --all-databases --skip-lock-tables > /backup/backup-$(date +'%Y%m%d-%H%M%S').sql"]
+            args: ["-c", "mysqldump -h [masternode IP] -P 30044 -u root -p$MYSQL_ROOT_PASSWORD --all-databases --skip-lock-tables > /backup/backup-$(date +'%Y%m%d-%H%M%S').sql"]
             env:
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:
