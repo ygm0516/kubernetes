@@ -173,7 +173,7 @@ mysql-pv-volume                            10Gi       RWO            Retain     
 ```
 - pv, pvc가 연결된 것을 확인 (STATUS: Bound 상태)
 
----
+
 
 # <div id='3'/> 3. configmap 생성
 
@@ -428,7 +428,6 @@ mysql> select * from  friends;
 `kubectl delete -f mysql-statefulset.yaml`
 
 
----
 # <div id='8'/> 8. cronjob 생성
 
 ## <div id='8-1'/>8.1. cronjob 생성 파일 작성
