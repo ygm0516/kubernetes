@@ -244,8 +244,8 @@ data:
   password: cGFzc3dvcmQ= #password
 
 ```
-- password에는 base64로 인코딩하여 값을 넣는다
-`echo -n 'password' | base64`
+- password에는 base64로 인코딩하여 값을 넣는다<br>
+`echo -n 'password' | base64`<br>
 `cGFzc3dvcmQ=`
 
 ```
