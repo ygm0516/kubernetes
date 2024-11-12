@@ -102,9 +102,10 @@ sudo mkdir -p /backup/
 
 - 명령어 실행 결과
 
-`kubectl apply -f mysql-pv.yaml`
-`persistentvolume/mysql-pv-volume created`
-`persistentvolume/backup-pv-volume created`
+```kubectl apply -f mysql-pv.yaml
+persistentvolume/mysql-pv-volume created
+persistentvolume/backup-pv-volume created
+```
 
 
 
@@ -217,9 +218,10 @@ data:
     super-read-only : slave 서버에서 DB를 읽기 전용으로 사용/master 서버에서 동기화된 데이터 안전하게 유지
 - init.sql: mysql서버가 시작될 때 실행할 초기화 sql 스크립트
 
-
-`ubuntu@ta-task-cluster-1:~/edu$ kubectl apply -f mysql-configmap.yaml `
-`configmap/mysql-initdb-config created`
+```
+ubuntu@ta-task-cluster-1:~/edu$ kubectl apply -f mysql-configmap.yaml 
+configmap/mysql-initdb-config created
+```
 
 
 ## <div id='3-2'/>3.2. configmap 생성 결과 확인
