@@ -37,7 +37,6 @@
 본 문서는 쿠버네티스 환경에 mysql 서비스를 배포하는 방법과 주기적으로 백업시키는 방법에 대해 기술한다.
 
 
----
 
 # <div id='2'/> 2. pv, pvc 생성
 
@@ -91,6 +90,7 @@ spec:
 kubectl get sc -A --> 확인 후 사용할 storageClass를 작성
 
 - accessModes 접근 모드 설정
+<br>
 *접근 모드 : https://kubernetes.io/ko/docs/concepts/storage/persistent-volumes/#%EC%A0%91%EA%B7%BC-%EB%AA%A8%EB%93%9C*
 
 - path : path에 지정된 경로에 파일을 저장함 (해당 경로는 따로 생성해주어야함)
