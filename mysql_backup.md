@@ -92,7 +92,7 @@ kubectl get sc -A --> 확인 후 사용할 storageClass를 작성
 
 - accessModes 접근 모드 설정
 <br>
-*접근 모드 : https://kubernetes.io/ko/docs/concepts/storage/persistent-volumes/#%EC%A0%91%EA%B7%BC-%EB%AA%A8%EB%93%9C*
+*접근 모드 : https://kubernetes.io/ko/docs/concepts/storage/persistent-volumes/#%EC%A0%91%EA%B7%BC-%EB%AA%A8%EB%93%9C
 
 - path : path에 지정된 경로에 파일을 저장함 (해당 경로는 따로 생성해주어야함)
 ```
