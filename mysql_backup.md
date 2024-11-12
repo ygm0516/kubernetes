@@ -245,8 +245,8 @@ data:
 
 ```
 - password에는 base64로 인코딩하여 값을 넣는다
-echo -n 'password' | base64
-cGFzc3dvcmQ=
+`echo -n 'password' | base64`
+`cGFzc3dvcmQ=`
 
 ```
 ubuntu@ta-task-cluster-1:~/edu$ kubectl apply -f mysql-secret.yaml 
