@@ -1,4 +1,4 @@
-## Cluster Installation & Configuration-Kubernets Upgrade 가이드.md
+## Cluster Installation & Configuration-Kubernetes Upgrade 가이드.md
 
 [kubeadm 클러스터 업그레이드] https://kubernetes.io/ko/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/
 
@@ -10,7 +10,7 @@
     * [2.1.kubeadm](#2-1)
     * [2.2.kubelet](#2-2)
     * [2.3.kubectl](#2-3)
-3. [Kubernets Upgrade](#3)
+3. [Kubernetes Upgrade](#3)
     * [3.1. master/worker 노드 drain](#3-1)
     * [3.2. kubeadm 클러스터 업그레이드](#3-2)
     * [3.3. master/worker 노드 uncordon](#3-4)
