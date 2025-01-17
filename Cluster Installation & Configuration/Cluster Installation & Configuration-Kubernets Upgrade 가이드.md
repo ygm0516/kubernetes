@@ -94,7 +94,6 @@ drain : 배출
 *drain 명령어는 cordon 이후에 동작함*
 ```bash
 $ kubectl drain [node_name]
-or
 $ kubectl drain --ignore-daemonsets [node_name]
 ```
 ## <div id='3-2'/>3.2. kubeadm 클러스터 업그레이드
