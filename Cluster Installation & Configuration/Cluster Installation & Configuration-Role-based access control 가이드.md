@@ -1,6 +1,7 @@
 ## Cluster Installation & Configuration-Role-based access control 가이드.md
 
-[kubeadm 클러스터 업그레이드] https://kubernetes.io/ko/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/
+[Using RBAC Authorization](https://kubernetes.io/docs/reference/access-authn-authz/rbac/)
+[Kubectl reference Docs](https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands)
 
 ## 목차
 1. [문서 개요](#1)
