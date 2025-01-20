@@ -67,7 +67,6 @@ kubectl describe role podreader-role-yang -n api-access-yang
 ```
 
 ## <div id='2-4'/>2.3. RoleBinding 생성
-
 - podreader-rolebinding-yang이라는 RoleBinding을 생성하여 ServiceAccount pod-viewer를 Role podreader-role-yang에 매핑
 ```
 #vi podreader-rolebinding-yang.yaml
