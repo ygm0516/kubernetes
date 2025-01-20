@@ -72,45 +72,131 @@ RSM : command가 들어있는 log 단위로 데이터를 처리함
 ## <div id='3-1'/>3.1. etcdctl 세팅
 
 etcdctl 명령어 사용을 위해서는 etcd의 버전, 엔드포인트, 인증 정보를 함께 제공하여야함
-구성한 클러스터의 /etc/etcd.env 파일을 참고하여 etcdctl 별칭을 등록한 다음 사용
+구성한 클러스터의 파일에서 변수 확인
 
+※ endpoint, cacert, cert, key 정보 확인
 ```bash
-alias etcdctl='ETCDCTL_API=3 etcdctl \
---endpoints=https://{MASTER_IP}:2379 \
---cacert={ETCDCTL_CACERT} \
---cert={ETCDCTL_KEY} \
---key={ETCDCTL_CERT} '
+$ cd /etc/kubernetes/manifests
+$ sudo cat kube-apiserver.yaml
+$ ps -ef | grep kube | grep etcd
 ```
 
 ## <div id='3-2'/>3.2. ETCD 백업
 
-ETCD 벡업 참고 명령어
+- /data/etcd-snapshot-yang.db라는 이름으로 ETCD 스냅샷 생성
 ```bash
-$ etcdctl snapshot save { 백업할 경로 }/etcd-`date +%Y%m%d_%H%M%S`
+$ sudo su
+$ etcdctl --endpoints=https://127.0.0.1:2379 --cacert=<trusted-ca-file> --cert=<cert-file> --key=<key-file> snapshot save /data/etcd-snapshot-yang.db
+{"level":"info","ts":"2025-01-20T04:41:29.643054Z","caller":"snapshot/v3_snapshot.go:65","msg":"created temporary db file","path":"/data/etcd-snapshot-yang.db.part"}
+{"level":"info","ts":"2025-01-20T04:41:29.67065Z","logger":"client","caller":"v3@v3.5.10/maintenance.go:212","msg":"opened snapshot stream; downloading"}
+{"level":"info","ts":"2025-01-20T04:41:29.67073Z","caller":"snapshot/v3_snapshot.go:73","msg":"fetching snapshot","endpoint":"https://127.0.0.1:2379"}
+{"level":"info","ts":"2025-01-20T04:41:30.546221Z","logger":"client","caller":"v3@v3.5.10/maintenance.go:220","msg":"completed snapshot read; closing"}
+{"level":"info","ts":"2025-01-20T04:41:31.023806Z","caller":"snapshot/v3_snapshot.go:88","msg":"fetched snapshot","endpoint":"https://127.0.0.1:2379","size":"29 MB","took":"1 second ago"}
+{"level":"info","ts":"2025-01-20T04:41:31.024024Z","caller":"snapshot/v3_snapshot.go:97","msg":"saved","path":"/data/etcd-snapshot-yang.db"}
+Snapshot saved at /data/etcd-snapshot-yang.db
+
+```
+
+- 스냅샷 생성 확인
+```
+$ cd /data/
+$ ls 
+etcd-snapshot-yang.db
 ```
 
 ## <div id='3-3'/>3.3. nginx application 배포
+- etcd-yang Namespace 생성
+```
+kubectl create ns etcd-yang
+```
+
+- nginx application 배포
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  namespace: etcd-yang
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:latest
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+  namespace: etcd-yang
+spec:
+  selector:
+    app: nginx
+  type: NodePort
+  ports:
+    - port: 80
+```
 
 
 # <div id='4'/> 4. ETCD 복구
 ## <div id='4-1'/>4.1. snapshot 복구
-
+- /data/etcd-snapshot-yang.db 생성한 etcd 스냅샷을 사용하여 복구
 ```bash
-## master1에서 etcd 복구 커맨드(마스터 삼중화 환경 고려)
+$ sudo etcdctl --data-dir /data/etcd-new-yang snapshot restore /data/etcd-snapshot-yang.db
+Deprecated: Use `etcdutl snapshot restore` instead.
 
-$ etcdctl snapshot restore {백업파일명} \
---name {master1_hostname} \
---data-dir /var/lib/etcd/recover \
---initial-cluster {master1_hostname}=https://{master1_IP}:2380,{master2_hostname}=https://{master2_IP}:2380,{master3_hostname}=https://{master3_IP}:2380 \
---initial-advertise-peer-urls https://{master1_IP}:2380
-
-## master1만 있는 경우 initial-cluster 옵션에서 master1의 정보만 남기고 master 2,3정보를 지워준다.
-## 마스터삼중화 구조에서는 master2와 master3에서 위 커맨드 수행시 name옵션과 initial-advertise-peer-urls의 master1값을 master2,3에 맞게 바꾸어 수행하면 된다.
+2025-01-20T04:42:59Z	info	snapshot/v3_snapshot.go:260	restoring snapshot	{"path": "/data/etcd-snapshot-yang.db", "wal-dir": "/data/etcd-new-yang/member/wal", "data-dir": "/data/etcd-new-yang", "snap-dir": "/data/etcd-new-yang/member/snap"}
+2025-01-20T04:42:59Z	info	membership/store.go:141	Trimming membership information from the backend...
+2025-01-20T04:43:00Z	info	membership/cluster.go:421	added member	{"cluster-id": "cdf818194e3a8c32", "local-member-id": "0", "added-peer-id": "8e9e05c52164694d", "added-peer-peer-urls": ["http://localhost:2380"]}
+2025-01-20T04:43:00Z	info	snapshot/v3_snapshot.go:287	restored snapshot	{"path": "/data/etcd-snapshot-yang.db", "wal-dir": "/data/etcd-new-yang/member/wal", "data-dir": "/data/etcd-new-yang", "snap-dir": "/data/etcd-new-yang/member/snap"}
 ```
 
+- tree 명령 사용
+```
+$ sudo tree /data/etcd-new-yang/
+/data/etcd-new-yang/
+└── member
+    ├── snap
+    │   ├── 0000000000000001-0000000000000001.snap
+    │   └── db
+    └── wal
+        └── 0000000000000000-0000000000000000.wal
+
+3 directories, 3 files
+```
+
+- kube-apiserver.yaml 에 생성한 etcd 스냅샷 파일로 변경
+
+```
+$ sudo vi /etc/kubernetes/manifests/kube-apiserver.yaml
+```
+```
+- mountPath: /data/etcd-new-yang/ssl # 수정 부분
+      name: etcd-certs-new
+      readOnly: true
+---
+  - hostPath: #수정 부분
+      path: /data/etcd-new-yang/ssl
+      type: DirectoryOrCreate
+    name: etcd-certs-new
+```
 ## <div id='4-2'/>4.2. 복구 확인
 
-tree 명령 사용
+
+
+
+
+
+
 
 
 
