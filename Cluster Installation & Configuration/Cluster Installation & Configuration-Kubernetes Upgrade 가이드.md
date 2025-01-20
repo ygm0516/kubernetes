@@ -115,8 +115,8 @@ $ apt-cache madison kubeadm
 
 - 컨트롤 플레인 노드 업그레이드
 ```
-$ apt-mark unhold kubeadm && \
-$ apt-get update && apt-get install -y kubeadm=1.29.x-00 && \
+$ apt-mark unhold kubeadm 
+$ apt-get update && apt-get install -y kubeadm=1.29.x-00 
 $ apt-mark hold kubeadm
 ```
 
@@ -150,8 +150,8 @@ $ kubectl drain --ignore-daemonsets [node_name]
 - 모든 컨트롤 플레인 노드에서 kubelet 및 kubectl을 업그레이드
 
 ```bash
-$ apt-mark unhold kubelet kubectl && 
-$ apt-get update && apt-get install -y kubelet=1.29.x-00 kubectl=1.29.x-00 && 
+$ apt-mark unhold kubelet kubectl
+$ apt-get update && apt-get install -y kubelet=1.29.x-00 kubectl=1.29.x-00 
 $ apt-mark hold kubelet kubectl
 ```
 
@@ -178,8 +178,8 @@ $ kubectl uncordon [node_name]
 
 - 모든 워커 노드 kubeadm 업그레이드
 ```
-$ apt-mark unhold kubeadm && \
-$ apt-get update && apt-get install -y kubeadm=1.29.x-00 && \
+$ apt-mark unhold kubeadm
+$ apt-get update && apt-get install -y kubeadm=1.29.x-00 
 $ apt-mark hold kubeadm
 ```
 
@@ -201,8 +201,8 @@ $ kubectl drain --ignore-daemonsets [node_name]
 - 모든 컨트롤 플레인 노드에서 kubelet 및 kubectl을 업그레이드
 
 ```bash
-$ apt-mark unhold kubelet kubectl && \
-$ apt-get update && apt-get install -y kubelet=1.29.x-00 kubectl=1.29.x-00 && \
+$ apt-mark unhold kubelet kubectl 
+$ apt-get update && apt-get install -y kubelet=1.29.x-00 kubectl=1.29.x-00 
 $ apt-mark hold kubelet kubectl
 ```
 
