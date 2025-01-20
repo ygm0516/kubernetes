@@ -150,6 +150,7 @@ spec:
 # <div id='4'/> 4. ETCD 복구
 ## <div id='4-1'/>4.1. snapshot 복구
 - /data/etcd-snapshot-yang.db 생성한 etcd 스냅샷을 사용하여 복구
+- 스냅샷을 떴던 시점으로 다시 되돌리겠다는 것을 의미함
 ```bash
 $ sudo etcdctl --data-dir /data/etcd-new-yang snapshot restore /data/etcd-snapshot-yang.db
 Deprecated: Use `etcdutl snapshot restore` instead.
@@ -160,7 +161,7 @@ Deprecated: Use `etcdutl snapshot restore` instead.
 2025-01-20T04:43:00Z	info	snapshot/v3_snapshot.go:287	restored snapshot	{"path": "/data/etcd-snapshot-yang.db", "wal-dir": "/data/etcd-new-yang/member/wal", "data-dir": "/data/etcd-new-yang", "snap-dir": "/data/etcd-new-yang/member/snap"}
 ```
 
-- tree 명령 사용
+- tree 명령 사용하여 생성 확인
 ```
 $ sudo tree /data/etcd-new-yang/
 /data/etcd-new-yang/
@@ -174,22 +175,28 @@ $ sudo tree /data/etcd-new-yang/
 3 directories, 3 files
 ```
 
-- kube-apiserver.yaml 에 생성한 etcd 스냅샷 파일로 변경
+- etcd 디렉터리 교체
+```
+$ sudo systemctl stop etcd
+$ sudo mv /var/lib/etcd/ /var/lib/etcd.bak
+$ sudo mv /data/etcd-new-yang/ /var/lib/etcd
+$ sudo chown -R etcd:etcd /var/lib/etcd
+```
 
+- etcd 서비스 재시작
 ```
-$ sudo vi /etc/kubernetes/manifests/kube-apiserver.yaml
+$ sudo systemctl start etcd
+$ sudo systemctl status etcd
 ```
-```
-- mountPath: /data/etcd-new-yang/ssl # 수정 부분
-      name: etcd-certs-new
-      readOnly: true
----
-  - hostPath: #수정 부분
-      path: /data/etcd-new-yang/ssl
-      type: DirectoryOrCreate
-    name: etcd-certs-new
-```
+
+
 ## <div id='4-2'/>4.2. 복구 확인
+
+- nginx 배포 전으로 돌아가 있음
+```
+$ kubectl get pod -n etcd-yang
+No resources found in etcd-yang namespace.
+```
 
 
 
