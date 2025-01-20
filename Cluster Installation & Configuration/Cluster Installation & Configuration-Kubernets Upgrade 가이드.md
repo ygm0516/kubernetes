@@ -1,6 +1,6 @@
 ## Cluster Installation & Configuration-Kubernetes Upgrade 가이드.md
 
-[kubeadm 클러스터 업그레이드] https://kubernetes.io/ko/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/
+[kubeadm 클러스터 업그레이드](https://kubernetes.io/ko/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/)
 
 ## 목차
 1. [문서 개요](#1)
