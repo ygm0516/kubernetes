@@ -27,7 +27,7 @@
 ## <div id='1-2'/> 1.1. 범위
 모든 명령 수행은 kubectl 을 통해 진행하였다.
 
-<br/>
+
 # <div id='2'/> 2. RBAC: ServiceAccount, Role, RoleBinding 설정
 ## <div id='2-1'/>2.1. Namespace 생성
 - api-access-yang이라는 네임스페이스를 생성
@@ -89,7 +89,7 @@ roleRef:
 kubectl apply -f podreader-rolebinding-yang.yaml
 kubectl describe rolebinding podreader-rolebinding-yang -n api-access-yang
 ```
-<br/>
+
 # <div id='3'/> 3.생성 확인 및 검증
 ## <div id='3-1'/>3.1. ServiceAccount 확인
 ```
