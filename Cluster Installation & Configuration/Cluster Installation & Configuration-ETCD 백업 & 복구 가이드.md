@@ -1,9 +1,9 @@
 ## Cluster Installation & Configuration-ETCD 백업 & 복구 가이드.md
 
 
-[Kubernetes 운영을 위한 etcd 기본 동작 원리의 이해] https://tech.kakao.com/posts/484 <br/>
-[Backing up an etcd cluster] https://kubernetes.io/docs/tasks/administer-cluster/configure-upgrade-etcd/#backing-up-an-etcd-cluster<br/>
-[볼륨 스냅샷] https://kubernetes.io/ko/docs/concepts/storage/volume-snapshots/<br/>
+[Kubernetes 운영을 위한 etcd 기본 동작 원리의 이해](https://tech.kakao.com/posts/484) <br/>
+[Backing up an etcd cluster](https://kubernetes.io/docs/tasks/administer-cluster/configure-upgrade-etcd/#backing-up-an-etcd-cluster)<br/>
+[볼륨 스냅샷](https://kubernetes.io/ko/docs/concepts/storage/volume-snapshots/)<br/>
 
 ## 목차
 1. [문서 개요](#1)
