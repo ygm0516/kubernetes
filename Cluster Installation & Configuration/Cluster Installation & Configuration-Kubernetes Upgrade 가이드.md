@@ -10,18 +10,25 @@
     * [2.1.kubeadm](#2-1)
     * [2.2.kubelet](#2-2)
     * [2.3.kubectl](#2-3)
-3. [Kubernetes Upgrade](#3)
-    * [3.1. master/worker 노드 drain](#3-1)
-    * [3.2. kubeadm 클러스터 업그레이드](#3-2)
-    * [3.3. master/worker 노드 uncordon](#3-4)
-    * [3.4. Upgrade 버전 확인](#3-4)
+3. [Control-plane Kubernetes Upgrade](#3)
+    * [3.1. kubeadm upgrade](#3-1)
+    * [3.2. Control-plane drain](#3-2)
+    * [3.3. kubelet과 kubectl upgrade](#3-3)
+    * [3.4. Control-plane uncordon](#3-4)
+  
+4. [Worker Node Kubernetes Upgrade](#4)
+    * [4.1. kubeadm upgrade](#4-1)
+    * [4.2. 노드 drain](#4-2)
+    * [4.3. kubelet과 kubectl upgrade](#4-3)
+    * [4.4. 노드 uncordon](#4-4)
 
-
+5. [Kubernetes Upgrade 확인](#5)
 
 # <div id='1'/> 1. 문서 개요
 ## <div id='1-1'/> 1.1. 목적
-## <div id='1-2'/> 1.1. 범위
-Control-plane 과 worker-node-1 만 업그레이드 수행
+본 문서는 kubeadm, kubelet, kubectl의 역할과 control plane과 worker node의 Kubernetes 업그레이드 방법에 대하여 기술하였다.
+## <div id='1-2'/> 1.2. 범위
+Control-plane 과 worker-node-1만 업그레이드 수행하며, 1.29.x버전 업그레이드를 기준으로 작성되었다.
 
 # <div id='2'/> 2. 패키지별 용도
 ## <div id='2-1'/>2.1. kubeadm
@@ -82,8 +89,47 @@ Kubernetes API 서버와 통신하여 클러스터 상태를 조회하거나 관
 	- 배포 관리
 		- 애플리케이션 배포, 확장, 롤백 등의 작업을 쉽게 수행
 
-# <div id='3'/> 3.Kubernets Upgrade
-## <div id='3-1'/>3.1. master/worker 노드 drain
+# <div id='3'/> 3. Control-plane Kubernetes Upgrade
+- 추상적인 업그레이드 작업 절차
+	1) 기본 컨트롤 플레인 노드를 업그레이드한다.
+	2) 추가 컨트롤 플레인 노드를 업그레이드한다.
+	3) 워커(worker) 노드를 업그레이드한다.
+
+- 기존 버전 확인 
+```bash
+$ kubectl get nodes
+NAME                  STATUS   ROLES           AGE    VERSION
+task-cluster2         Ready    control-plane   146d   v1.28.6
+task-cluster2-work1   Ready    <none>          146d   v1.28.6
+task-cluster2-work2   Ready    <none>          146d   v1.28.6
+task-cluster2-work3   Ready    <none>          146d   v1.28.6
+```
+
+## <div id='3-1'/>3.1 kubeadm upgrade
+- 업그레이드 버전 결정
+	- 목록에서 1.29.x 버전을 찾아서 선택한다.
+```
+$ apt update
+$ apt-cache madison kubeadm
+```
+
+- 컨트롤 플레인 노드 업그레이드
+```
+$ apt-mark unhold kubeadm && \
+$ apt-get update && apt-get install -y kubeadm=1.29.x-00 && \
+$ apt-mark hold kubeadm
+```
+
+- 다운로드할 버전이 정상적으로 다운되었는지 확인
+```
+$ kubeadm version
+$ kubeadm upgrade plan 
+```
+- "kubeadm upgrade" 호출(Control-plane에서만 진행)
+```
+$ sudo kubeadm upgrade apply v1.29.x
+```
+## <div id='3-2'/>3.2. 3.2. 노드 drain
 
 drain : 배출
 
@@ -92,27 +138,90 @@ drain : 배출
 
 - 해당 노드에 더 이상 파드가 생성되지 않도록 보호하고 문제 해결을 위해 drain을 진행
 *drain 명령어는 cordon 이후에 동작함*
+
 ```bash
+#cordon 적용
+$ kubectl cordon [node_name]
 $ kubectl drain [node_name]
 $ kubectl drain --ignore-daemonsets [node_name]
 ```
-## <div id='3-2'/>3.2. kubeadm 클러스터 업그레이드
+## <div id='3-3'/>3.3. kubelet과 kubectl upgrade
 
-## <div id='3-3'/>3.3. master/worker 노드 uncordon
+- 모든 컨트롤 플레인 노드에서 kubelet 및 kubectl을 업그레이드
+
+```bash
+$ apt-mark unhold kubelet kubectl && \
+$ apt-get update && apt-get install -y kubelet=1.29.x-00 kubectl=1.29.x-00 && \
+$ apt-mark hold kubelet kubectl
+```
+
+- kubelet 다시 시작 
+```bash
+$ sudo systemctl daemon-reload
+$ sudo systemctl restart kubelet
+```
+
+
+## <div id='3-4'/>3.4. 노드 uncordon
 cordon : 저지선
 - 특정 노드를 unSchedule 상태로 만들어서 pod를 스케줄하지 않음
 - 기존의 동작하는 pod에 대해서는 간섭하지 않음
 
 ```taint - noSchedule과 cordon의 내용이 상당히 비슷```
 ```bash	
-#cordon 적용
-$ kubectl cordon [node_name]
 #cordon 적용 해제
 $ kubectl uncordon [node_name]
 ```
 
-## <div id='3-4'/>3.4. Upgrade 버전 확인
+# <div id='4'/> 4. Worker Node Kubernetes Upgrade
+## <div id='4-1'/>4.1 kubeadm upgrade
 
+- 모든 워커 노드 kubeadm 업그레이드
+```
+$ apt-mark unhold kubeadm && \
+$ apt-get update && apt-get install -y kubeadm=1.29.x-00 && \
+$ apt-mark hold kubeadm
+```
+
+- 로컬 kubelet 구성을 업그레이드함
+```
+$ sudo kubeadm upgrade node
+```
+## <div id='4-2'/>4.2. 노드 drain
+
+*drain 명령어는 cordon 이후에 동작함*
+
+```bash
+#cordon 적용
+$ kubectl cordon [node_name]
+$ kubectl drain --ignore-daemonsets [node_name]
+```
+## <div id='4-3'/>4.3. kubelet과 kubectl upgrade
+
+- 모든 컨트롤 플레인 노드에서 kubelet 및 kubectl을 업그레이드
+
+```bash
+$ apt-mark unhold kubelet kubectl && \
+$ apt-get update && apt-get install -y kubelet=1.29.x-00 kubectl=1.29.x-00 && \
+$ apt-mark hold kubelet kubectl
+```
+
+- kubelet 다시 시작 
+```bash
+$ sudo systemctl daemon-reload
+$ sudo systemctl restart kubelet
+```
+## <div id='4-4'/>4.4. 노드 uncordon
+
+```bash	
+#cordon 적용 해제
+$ kubectl uncordon [node_name]
+```
+
+# <div id='5'/> 5. Kubernetes Upgrade 확인
+```
+kubectl get nodes
+```
 
 
 
