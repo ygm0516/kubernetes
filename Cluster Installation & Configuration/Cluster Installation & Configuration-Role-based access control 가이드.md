@@ -26,8 +26,8 @@
 ## <div id='1-2'/> 1.1. 범위
 모든 명령 수행은 kubectl 을 통해 진행하였다.
 
+<br/>
 # <div id='2'/> 2. RBAC: ServiceAccount, Role, RoleBinding 설정
-
 ## <div id='2-1'/>2.1. Namespace 생성
 - api-access-yang이라는 네임스페이스를 생성
 ```
@@ -41,7 +41,10 @@ kubectl create serviceaccount pod-viewer-yang -n api-access-yang
 ```
 
 - 생성 확인
-```kubectl get serviceaccount pod-viewer -n api-access```
+```
+kubectl get serviceaccount pod-viewer -n api-access
+```
+
 ## <div id='2-3'/>2.3. Role 생성
 - podreader-role-yang 이라는 이름의 Role을 생성하여 watch, list, get 권한을 부여
 ```
@@ -86,26 +89,28 @@ roleRef:
 kubectl apply -f podreader-rolebinding-yang.yaml
 kubectl describe rolebinding podreader-rolebinding-yang -n api-access-yang
 ```
-
+<br/>
 # <div id='3'/> 3.생성 확인 및 검증
 ## <div id='3-1'/>3.1. ServiceAccount 확인
 ```
 kubectl get serviceaccount pod-viewer-yang -n api-access-yang
 ```
+
 ## <div id='3-2'/>3.2. Role 확인
 ```
 kubectl describe role podreader-role-yang -n api-access-yang
 ```
+
 ## <div id='3-3'/>3.3. RoleBinding 확인
 ```
 kubectl describe rolebinding podreader-rolebinding-yang -n api-access-yang
 ```
+
 ## <div id='3-4'/>3.4. 권한 테스트
 ```
 kubectl auth can-i get pods --as=system:serviceaccount:api-access-yang:pod-viewer-yang -n api-access-yang
 kubectl auth can-i list pods --as=system:serviceaccount:api-access-yang:pod-viewer-yang -n api-access-yang
 kubectl auth can-i watch pods --as=system:serviceaccount:api-access-yang:pod-viewer-yang -n api-access-yang
-
 ```
 
 
