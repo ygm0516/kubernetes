@@ -198,7 +198,7 @@ $ kubectl drain --ignore-daemonsets [node_name]
 ```
 ## <div id='4-3'/>4.3. kubelet과 kubectl upgrade
 
-- 모든 컨트롤 플레인 노드에서 kubelet 및 kubectl을 업그레이드
+- kubelet 및 kubectl을 업그레이드
 
 ```bash
 $ apt-mark unhold kubelet kubectl 
