@@ -66,6 +66,9 @@ RSM : command가 들어있는 log 단위로 데이터를 처리함
 
 이렇게 분산 환경에서 상태를 공유하는 알고리즘을 Consensus Algorithm이라고 부르며, etcd는 그 중 Raft Algorithm을 사용
 
+- Raft Algorithm : 분산 합의 알고리즘
+	여러 서버들 중 일부 서버에 장애가 발생하더라도 기능을 유지하도록 하는 내결함성을 가짐
+
 
 
 # <div id='3'/> 3.ETCD 백업
