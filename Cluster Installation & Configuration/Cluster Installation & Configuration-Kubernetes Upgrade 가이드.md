@@ -92,20 +92,20 @@ Kubernetes API 서버와 통신하여 클러스터 상태를 조회하거나 관
 
 - 기존 버전 확인 
 ```bash
-$ kubectl get nodes
-NAME                  STATUS   ROLES           AGE    VERSION
-task-cluster2         Ready    control-plane   146d   v1.28.6
-task-cluster2-work1   Ready    <none>          146d   v1.28.6
-task-cluster2-work2   Ready    <none>          146d   v1.28.6
-task-cluster2-work3   Ready    <none>          146d   v1.28.6
+$ kubectl get node
+NAME                STATUS   ROLES           AGE    VERSION
+ta-task-cluster-1   Ready    control-plane   146d   v1.28.6
+ta-task-cluster-2   Ready    <none>          146d   v1.28.6
+ta-task-cluster-3   Ready    <none>          146d   v1.28.6
+ta-task-cluster-4   Ready    <none>          146d   v1.28.6
 ```
 
 ## <div id='3-1'/>3.1 kubeadm upgrade
 - 업그레이드 버전 결정
 	- 목록에서 1.29.x 버전을 찾아서 선택한다.
 ```
-$ apt update
-$ apt-cache madison kubeadm
+$ sudo apt update
+$ sudo apt-cache madison kubeadm
 ```
 
 - 컨트롤 플레인 노드 업그레이드
