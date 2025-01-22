@@ -159,10 +159,7 @@ $ sudo systemctl restart kubelet
 
 
 ## <div id='3-4'/>3.4. Control-plane uncordon
-- 특정 노드를 unSchedule 상태로 만들어서 pod를 스케줄하지 않음
-- 기존의 동작하는 pod에 대해서는 간섭하지 않음
 - uncordon 명령을 통해 pod가 다시 스케줄링 될 수 있게 설정한다.
-  
 ```bash	
 #cordon 적용 해제
 $ kubectl uncordon [node_name]
