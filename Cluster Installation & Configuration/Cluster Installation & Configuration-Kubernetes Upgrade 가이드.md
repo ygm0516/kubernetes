@@ -125,9 +125,10 @@ $ kubeadm upgrade plan
 $ sudo kubeadm upgrade apply v1.29.x
 ```
 ## <div id='3-2'/>3.2. 3.2. Control-plane drain
-- 업그레이드 전 node 들을 drain을 해준다.
-- drain 상태에서는 Pod가 더는 할당되지 않게 taint 시킬 뿐 아니라 노드 내 존재하는 Pod들을 Evict(퇴거)시킨다.
-- 해당 노드에 더 이상 파드가 생성되지 않도록 보호하고 문제 해결을 위해 drain을 진행
+업그레이드 전 node를 drain을 해준다.
+drain 상태에서는 Pod가 더는 할당되지 않게 taint 시킬 뿐 아니라 노드 내 존재하는 Pod들을 Evict(퇴거)시킨다.
+해당 노드에 더 이상 파드가 생성되지 않도록 보호하고 문제 해결을 위해 drain을 진행한다.
+
 *drain 명령어는 cordon 이후에 동작함*
 
 ```bash
@@ -137,11 +138,12 @@ $ kubectl drain [node_name]
 $ kubectl drain --ignore-daemonsets [node_name]
 ```
 ## <div id='3-3'/>3.3. kubelet과 kubectl upgrade
-- ```kubectl get nodes``` 명령어를 통해 보았을 때 아직 버전 업그레이드가 진행되지 않은 것처럼 보인다.
+```kubectl get nodes``` 명령어를 통해 보았을 때 아직 버전 업그레이드가 진행되지 않은 것처럼 보인다.
 ```
 여기에 명령어 결과 삽입
 ```
-- 이는 kubelet 이 아직 업그레이드가 되지 않아서 그렇다.
+이는 kubelet 이 아직 업그레이드가 되지 않아서 그렇다.
+
 - 모든 컨트롤 플레인 노드에서 kubelet 및 kubectl을 업그레이드를 진행한다.
 ```bash
 $ apt-mark unhold kubelet kubectl
