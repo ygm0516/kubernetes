@@ -95,16 +95,17 @@ Kubernetes API 서버와 통신하여 클러스터 상태를 조회하거나 관
 - 기존 버전 확인 
 ```bash
 $ kubectl get node
-NAME                STATUS   ROLES           AGE    VERSION
-ta-task-cluster-1   Ready    control-plane   146d   v1.28.6
-ta-task-cluster-2   Ready    <none>          146d   v1.28.6
-ta-task-cluster-3   Ready    <none>          146d   v1.28.6
-ta-task-cluster-4   Ready    <none>          146d   v1.28.6
+NAME                STATUS                     ROLES           AGE    VERSION
+ta-task-cluster-1   Ready					   control-plane   102m   v1.30.4
+ta-task-cluster-2   Ready                      <none>          101m   v1.30.4
+ta-task-cluster-3   Ready                      <none>          101m   v1.30.4
+ta-task-cluster-4   Ready                      <none>          101m   v1.30.4
+
 ```
 
 ## <div id='3-1'/>3.1 kubeadm upgrade
 - 업그레이드 버전 결정
-	- 목록에서 1.29.x 버전을 찾아서 선택한다.
+	- 목록에서 1.31.x 버전을 찾아서 선택한다.
 ```
 $ sudo apt update
 $ sudo apt-cache madison kubeadm
@@ -114,18 +115,25 @@ $ sudo apt-cache madison kubeadm
 $ sudo apt-get install -y apt-transport-https ca-certificates curl gpg
 $ sudo mkdir -p -m 755 /etc/apt/keyrings
 $ curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
-$ echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.29/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+$ echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.31/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
 $ sudo apt-get update
 ```
 - 컨트롤 플레인 노드 업그레이드
 ```
-$ apt-mark unhold kubeadm 
-$ apt-get update && apt-get install -y kubeadm=1.29.x-00 
-$ apt-mark hold kubeadm
+$ sudo apt-mark unhold kubeadm 
+$ sudo apt-get update && apt-get install -y kubeadm='1.31.5-1.1'
+$ sudo apt-mark hold kubeadm
 ```
 
 - 다운로드할 버전이 정상적으로 다운되었는지 확인
 ```
+$ dpkg -L kubeadm
+$ dpkg-query -L kubeadm
+$ /usr/bin/kubeadm version
+$ echo $PATH
+$ /usr/local/bin/kubeadm version
+$ sudo cp /usr/local/bin/kubeadm ~/kubeadm
+$ sudo mv /usr/bin/kubeadm /usr/local/bin/kubeadm
 $ kubeadm version
 $ kubeadm upgrade plan 
 ```
@@ -138,12 +146,9 @@ $ sudo kubeadm upgrade apply v1.29.x
 drain 상태에서는 Pod가 더는 할당되지 않게 taint 시킬 뿐 아니라 노드 내 존재하는 Pod들을 Evict(퇴거)시킨다.
 해당 노드에 더 이상 파드가 생성되지 않도록 보호하고 문제 해결을 위해 drain을 진행한다.
 
-*drain 명령어는 cordon 이후에 동작함*
 
 ```bash
 #cordon 적용
-$ kubectl cordon [node_name]
-$ kubectl drain [node_name]
 $ kubectl drain --ignore-daemonsets [node_name]
 ```
 ## <div id='3-3'/>3.3. kubelet과 kubectl upgrade
@@ -155,9 +160,9 @@ $ kubectl drain --ignore-daemonsets [node_name]
 
 - 모든 컨트롤 플레인 노드에서 kubelet 및 kubectl을 업그레이드를 진행한다.
 ```bash
-$ apt-mark unhold kubelet kubectl
-$ apt-get update && apt-get install -y kubelet=1.29.x-00 kubectl=1.29.x-00 
-$ apt-mark hold kubelet kubectl
+$ sudo apt-mark unhold kubelet kubectl
+$ sudo apt-get update && sudo apt-get install -y kubelet='1.31.5-1.1' kubectl='1.31.5-1.1'
+$ sudo apt-mark hold kubelet kubectl
 ```
 
 - kubelet 재시작
@@ -176,11 +181,13 @@ $ kubectl uncordon [node_name]
 
 # <div id='4'/> 4. Worker Node Kubernetes Upgrade
 ## <div id='4-1'/>4.1 kubeadm upgrade
-- Worker Node kubeadm 업그레이드
+
+
+- Worker Node kubeadm 업그레이드(이 작업은 업그레이드할 노드에서 진행한다)
 ```
-$ apt-mark unhold kubeadm
-$ apt-get update && apt-get install -y kubeadm=1.29.x-00 
-$ apt-mark hold kubeadm
+$ sudo apt-mark unhold kubeadm
+$ sudo apt-get update && sudo apt-get install -y kubeadm='1.31.5-1.1'
+$ sudo apt-mark hold kubeadm
 ```
 
 - kubelet configuration upgrade
@@ -191,16 +198,14 @@ $ sudo kubeadm upgrade node
 *drain 명령어는 cordon 이후에 동작함*
 - kubectl 명령이기에 Worker node가 아닌 Master Node에서 Drain 작업을 진행해야 한다.
 ```bash
-#cordon 적용
-$ kubectl cordon [node_name]
 $ kubectl drain --ignore-daemonsets [node_name]
 ```
 ## <div id='4-3'/>4.3. kubelet과 kubectl upgrade
 - kubelet 및 kubect upgrade
 ```bash
-$ apt-mark unhold kubelet kubectl 
-$ apt-get update && apt-get install -y kubelet=1.29.x-00 kubectl=1.29.x-00 
-$ apt-mark hold kubelet kubectl
+$ sudo apt-mark unhold kubelet kubectl 
+$ sudo apt-get update && sudo apt-get install -y kubelet='1.31.5-1.1' kubectl='1.31.5-1.1'
+$ sudo apt-mark hold kubelet kubectl
 ```
 
 - kubelet 재시작
@@ -211,12 +216,18 @@ $ sudo systemctl restart kubelet
 ## <div id='4-4'/>4.4. Worker Node uncordon
 ```bash	
 #cordon 적용 해제
-$ kubectl uncordon [node_name]
+$ kubectl uncordon ta-task-cluster-2
 ```
 
 # <div id='5'/> 5. Kubernetes Upgrade 확인
 ```
-kubectl get nodes
+$ kubectl get node
+NAME                STATUS                     ROLES           AGE    VERSION
+ta-task-cluster-1   Ready                      control-plane   120m   v1.31.5
+ta-task-cluster-2   Ready,SchedulingDisabled   <none>          119m   v1.31.5
+ta-task-cluster-3   Ready                      <none>          119m   v1.30.4
+ta-task-cluster-4   Ready                      <none>          119m   v1.30.4
+
 ```
 
 
