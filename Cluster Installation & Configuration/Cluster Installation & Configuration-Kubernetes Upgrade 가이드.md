@@ -109,7 +109,7 @@ ta-task-cluster-4   Ready    <none>          146d   v1.28.6
 $ sudo apt update
 $ sudo apt-cache madison kubeadm
 ```
->>  ```sudo apt-cache madison kubeadm``` 명령어 입력시 N: ```Unable to locate package kubeadm```에러 발생 해결 방법
+>  ```sudo apt-cache madison kubeadm``` 명령어 입력시 ```N: Unable to locate package kubeadm```에러 발생 해결 방법
 ```
 $ sudo apt-get install -y apt-transport-https ca-certificates curl gpg
 $ sudo mkdir -p -m 755 /etc/apt/keyrings
