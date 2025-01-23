@@ -30,7 +30,7 @@
 ## <div id='1-1'/> 1.1. 목적
 본 문서는 kubeadm, kubelet, kubectl의 역할과 control plane, worker node Kubernetes 업그레이드 방법에 대하여 기술하였다.
 ## <div id='1-2'/> 1.2. 범위
-Control-plane 과 worker-node-1만 업그레이드 수행하며, 1.29.x버전 업그레이드를 기준으로 작성되었다.
+Control-plane 과 worker-node-1만 업그레이드 수행하며, 1.31.x버전 업그레이드를 기준으로 작성되었다.
 
 # <div id='2'/> 2. 패키지별 용도
 ## <div id='2-1'/>2.1. kubeadm
@@ -96,7 +96,7 @@ Kubernetes API 서버와 통신하여 클러스터 상태를 조회하거나 관
 ```bash
 $ kubectl get node
 NAME                STATUS                     ROLES           AGE    VERSION
-ta-task-cluster-1   Ready					   control-plane   102m   v1.30.4
+ta-task-cluster-1   Ready		       control-plane   102m   v1.30.4
 ta-task-cluster-2   Ready                      <none>          101m   v1.30.4
 ta-task-cluster-3   Ready                      <none>          101m   v1.30.4
 ta-task-cluster-4   Ready                      <none>          101m   v1.30.4
@@ -106,18 +106,17 @@ ta-task-cluster-4   Ready                      <none>          101m   v1.30.4
 ## <div id='3-1'/>3.1 kubeadm upgrade
 - 업그레이드 버전 결정
 	- 목록에서 1.31.x 버전을 찾아서 선택한다.
-```
-$ sudo apt update
-$ sudo apt-cache madison kubeadm
-```
+
 >  ```sudo apt-cache madison kubeadm``` 명령어 입력시 ```N: Unable to locate package kubeadm```에러 발생 해결 방법
 ```
 $ sudo apt-get install -y apt-transport-https ca-certificates curl gpg
 $ sudo mkdir -p -m 755 /etc/apt/keyrings
 $ curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 $ echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.31/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
-$ sudo apt-get update
+$ sudo apt update
+$ sudo apt-cache madison kubeadm
 ```
+
 - 컨트롤 플레인 노드 업그레이드
 ```
 $ sudo apt-mark unhold kubeadm 
@@ -176,7 +175,7 @@ $ sudo systemctl restart kubelet
 - uncordon 명령을 통해 pod가 다시 스케줄링 될 수 있게 설정한다.
 ```bash	
 #cordon 적용 해제
-$ kubectl uncordon [node_name]
+$ kubectl uncordon ta-task-cluster-1
 ```
 
 # <div id='4'/> 4. Worker Node Kubernetes Upgrade
@@ -198,11 +197,22 @@ $ sudo kubeadm upgrade node
 *drain 명령어는 cordon 이후에 동작함*
 - kubectl 명령이기에 Worker node가 아닌 Master Node에서 Drain 작업을 진행해야 한다.
 ```bash
-$ kubectl drain --ignore-daemonsets [node_name]
+$ kubectl drain --ignore-daemonsets ta-task-cluster-2
 ```
 ## <div id='4-3'/>4.3. kubelet과 kubectl upgrade
+
+>  ```sudo apt-mark unhold kubelet kubectl``` 명령어 입력시 ```N: Unable to locate package kubectl...```에러 발생 해결 방법
+```
+$ sudo apt-get install -y apt-transport-https ca-certificates curl gpg
+$ sudo mkdir -p -m 755 /etc/apt/keyrings
+$ curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+$ echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.31/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+$ sudo apt update
+```
+
 - kubelet 및 kubect upgrade
 ```bash
+
 $ sudo apt-mark unhold kubelet kubectl 
 $ sudo apt-get update && sudo apt-get install -y kubelet='1.31.5-1.1' kubectl='1.31.5-1.1'
 $ sudo apt-mark hold kubelet kubectl
@@ -224,7 +234,7 @@ $ kubectl uncordon ta-task-cluster-2
 $ kubectl get node
 NAME                STATUS                     ROLES           AGE    VERSION
 ta-task-cluster-1   Ready                      control-plane   120m   v1.31.5
-ta-task-cluster-2   Ready,SchedulingDisabled   <none>          119m   v1.31.5
+ta-task-cluster-2   Ready                      <none>          119m   v1.31.5
 ta-task-cluster-3   Ready                      <none>          119m   v1.30.4
 ta-task-cluster-4   Ready                      <none>          119m   v1.30.4
 
