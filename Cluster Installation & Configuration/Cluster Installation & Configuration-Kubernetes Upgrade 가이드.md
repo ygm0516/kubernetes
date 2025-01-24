@@ -138,7 +138,7 @@ $ kubeadm upgrade plan
 ```
 - "kubeadm upgrade" upgrade 적용 
 ```
-$ sudo kubeadm upgrade apply v1.29.x
+$ sudo kubeadm upgrade apply v1.31.5
 ```
 ## <div id='3-2'/>3.2. 3.2. Control-plane drain
 업그레이드 전 node를 drain을 해준다.
@@ -148,14 +148,14 @@ drain 상태에서는 Pod가 더는 할당되지 않게 taint 시킬 뿐 아니�
 
 ```bash
 #cordon 적용
-$ kubectl drain --ignore-daemonsets [node_name]
+$ kubectl drain --ignore-daemonsets [Control_plane_name]
 ```
 ## <div id='3-3'/>3.3. kubelet과 kubectl upgrade
 ```kubectl get nodes``` 명령어를 통해 보았을 때 아직 버전 업그레이드가 진행되지 않은 것처럼 보인다.
 ```
 여기에 명령어 결과 삽입
 ```
-이는 kubelet 이 아직 업그레이드가 되지 않아서 그렇다.
+이는 kubelet이 아직 업그레이드가 되지 않아서 그렇다.
 
 - 모든 컨트롤 플레인 노드에서 kubelet 및 kubectl을 업그레이드를 진행한다.
 ```bash
@@ -175,14 +175,14 @@ $ sudo systemctl restart kubelet
 - uncordon 명령을 통해 pod가 다시 스케줄링 될 수 있게 설정한다.
 ```bash	
 #cordon 적용 해제
-$ kubectl uncordon ta-task-cluster-1
+$ kubectl uncordon [Control_plane_name]
 ```
 
 # <div id='4'/> 4. Worker Node Kubernetes Upgrade
 ## <div id='4-1'/>4.1 kubeadm upgrade
 
 
-- Worker Node kubeadm 업그레이드(이 작업은 업그레이드할 노드에서 진행한다)
+- Worker Node kubeadm 업그레이드(이 작업은 업그레이드할 워커 노드에서 진행한다)
 ```
 $ sudo apt-mark unhold kubeadm
 $ sudo apt-get update && sudo apt-get install -y kubeadm='1.31.5-1.1'
@@ -193,8 +193,8 @@ $ sudo apt-mark hold kubeadm
 ```
 $ sudo kubeadm upgrade node
 ```
+
 ## <div id='4-2'/>4.2. Worker Node drain
-*drain 명령어는 cordon 이후에 동작함*
 - kubectl 명령이기에 Worker node가 아닌 Master Node에서 Drain 작업을 진행해야 한다.
 ```bash
 $ kubectl drain --ignore-daemonsets ta-task-cluster-2
@@ -226,7 +226,7 @@ $ sudo systemctl restart kubelet
 ## <div id='4-4'/>4.4. Worker Node uncordon
 ```bash	
 #cordon 적용 해제
-$ kubectl uncordon ta-task-cluster-2
+$ kubectl uncordon [Worker_node_name]
 ```
 
 # <div id='5'/> 5. Kubernetes Upgrade 확인
