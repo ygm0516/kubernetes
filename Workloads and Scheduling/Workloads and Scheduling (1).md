@@ -81,16 +81,16 @@ $ vi subtask-pod-01.yaml
 apiVersion: v1
 kind: Pod
 metadata:
- name: k-paas-01
- namespace: k-paas
+  name: subtask-pod-01-yang
+  namespace: subtask-yang
 spec:
  containers:
- - name: k-paas-container
- image: busybox
- env:
- - name: CERT
- value: "subtask-cert"
- command: ["/bin/sh","-c","while true; do echo $CERT; sleep 10; done"]
+ - name: subtask-pod-01-yang
+   image: busybox
+   env:
+   - name: CERT
+     value: "subtask-cert"
+   command: ["/bin/sh","-c","while true; do echo $CERT; sleep 10; done"
 
 
 $ kubectl describe pod -n subtask-yang subtask-pod-01-yang 
