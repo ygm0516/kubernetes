@@ -23,7 +23,7 @@
     * [3.2. Multi container pod 생성](#3-2)
 4. [Streaming sidecar container](#4)
     * [4.1. Streaming sidecar container 개념](#4-1)
-	  * [4.2. 로그 스트리밍 사이드카 컨테이너 운영](#4-2)
+    * [4.2. 로그 스트리밍 사이드카 컨테이너 운영](#4-2)
 
 # <div id='1'/> 1. Pod
 ## <div id='1-1'/> 1.1. Pod 개념
