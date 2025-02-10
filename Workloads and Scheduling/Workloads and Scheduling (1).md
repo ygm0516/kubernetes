@@ -62,9 +62,6 @@ spec:
   restartPolicy: Always
 status: {}
 
-
-$ kubectl create ns subtask-yang
-namespace/subtask-yang created
 ```
 2) subtask-yang 라는 namespace를 만들고 아래 조건에 맞는 POD를 배포하고 describe 명령을 통해 확인
 > pod name: subtask-pod-01-yang
@@ -77,6 +74,9 @@ namespace/subtask-yang created
 
 > args: -c "while true; do echo $(CERT); sleep 10;done"
 ```
+$ kubectl create ns subtask-yang
+namespace/subtask-yang created
+
 $ vi subtask-pod-01.yaml
 apiVersion: v1
 kind: Pod
@@ -191,7 +191,7 @@ I0207 00:25:11.364799       1 autoscaler_server.go:157] ConfigMap not found: Get
 	- API 서버 없이 특정 노드에 있는 kubelet 데몬에 의해 직접 관리되어지는 파드
 	- 컨트롤 플레인에 의해 관리되는 파드와는 달리, kubelet 이 각각의 스태틱 파드를 감시
 - Static Pod 경로 변경
-	- kubelet의 config 파일 (/var/lib/kubelet/config.yaml) staticPodPath: /etc/kubernetes/manifests가 정의되어 있음
+	- kubelet의 config 파일 (/var/lib/kubelet/config.yaml)에 staticPodPath: /etc/kubernetes/manifests가 정의되어 있음
 	- 디렉토리 수정 시 kubelet 데몬 재실행
 ```
 $ systemctl restart kubelet
@@ -341,13 +341,4 @@ Mon Feb 10 04:05:23 UTC 2025 INFO 5782
 $ kubectl logs -f -n subtask-yang counter-yang -c count-log-1-yang
 $ kubectl logs -f -n subtask-yang counter-yang -c count-log-2-yang
 ```
-
-
-
-
-
-
-
-
-
 
