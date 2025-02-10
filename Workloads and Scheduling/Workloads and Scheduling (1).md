@@ -61,10 +61,6 @@ spec:
   dnsPolicy: ClusterFirst
   restartPolicy: Always
 status: {}
-
-
-$ kubectl create ns subtask-yang
-namespace/subtask-yang created
 ```
 2) subtask-yang 라는 namespace를 만들고 아래 조건에 맞는 POD를 배포하고 describe 명령을 통해 확인
 > pod name: subtask-pod-01-yang
@@ -78,6 +74,9 @@ namespace/subtask-yang created
 > args: -c "while true; do echo $(CERT); sleep 10;done"
 
 ```
+$ kubectl create ns subtask-yang
+namespace/subtask-yang created
+
 $ kubectl run subtask-pod-01 --image=nginx --dry-run=client -o yaml > subtask-pod-01-yang.yaml
 
 $ vi subtask-pod-01-yang.yaml
