@@ -34,7 +34,7 @@
 ## <div id='1-2'/> 1.2. Pod 배포
 
 1) kubectl 명령을 통해 아래 조건에 맞는 subtask-pod-nginx.yaml 파일을 생성 후 cat 명령을 통해 확인
-> pod name: subtask-pod-nginx
+> pod name: subtask-pod-nginx-yang
 
 > image: nginx:1.14
 
@@ -188,13 +188,11 @@ I0207 00:25:11.364799       1 autoscaler_server.go:157] ConfigMap not found: Get
 # <div id='2'/> 2. Static Pod
 ## <div id='2-1'/>2.1. Static Pod란.
 - Static Pod 개념
-	API 서버 없이 특정 노드에 있는 kubelet 데몬에 의해 직접 관리되어지는 파드
-	컨트롤 플레인에 의해 관리되는 파드와는 달리, kubelet 이 각각의 스태틱 파드를 감시
-
+	- API 서버 없이 특정 노드에 있는 kubelet 데몬에 의해 직접 관리되어지는 파드
+	- 컨트롤 플레인에 의해 관리되는 파드와는 달리, kubelet 이 각각의 스태틱 파드를 감시
 - Static Pod 경로 변경
-	kubelet의 config 파일 (/var/lib/kubelet/config.yaml) staticPodPath: /etc/kubernetes/manifests가 정의되어 있음
-
-	디렉토리 수정 시 kubelet 데몬 재실행
+	- kubelet의 config 파일 (/var/lib/kubelet/config.yaml) staticPodPath: /etc/kubernetes/manifests가 정의되어 있음
+	- 디렉토리 수정 시 kubelet 데몬 재실행
 ```
 $ systemctl restart kubelet
 ```
@@ -234,11 +232,10 @@ nfs-pod-provisioner-668f59bd7f-747gt   1/1     Running   4 (3d ago)   3d
 # <div id='3'/> 3.Multi container pod
 ## <div id='3-1'/>3.1. Container와 pod의 차이점
 - Pod
-	쿠버네티스에서 생성하고 관리할 수 있는 배포 가능한 가장 작은 컴퓨팅 단위(컨테이너를 표현하는 K8S API의 최소 단위)
-	하나 이상의 컨테이너 그룹(여러 개의 컨테이너가 포함될 수 있음)
+	- 쿠버네티스에서 생성하고 관리할 수 있는 배포 가능한 가장 작은 컴퓨팅 단위(컨테이너를 표현하는 K8S API의 최소 단위)
+	- 하나 이상의 컨테이너 그룹(여러 개의 컨테이너가 포함될 수 있음)
 
-- Container
-어플리케이션을 의미함
+- Container :어플리케이션을 의미함
 
 * kubernetes - conatiner 공식 문서
 	쿠버네티스 클러스터에 있는 개별 node는 해당 노드에 할당된 파드를 구성하는 컨테이너들을 실행한다. 파드 내부에 컨테이너들은 같은 노드에서 실행될 수 있도록 같은 곳에 위치하고 함께 스케줄된다
@@ -274,10 +271,9 @@ subtask-multi-pod-yang   3/3     Running   0          28s
 
 # <div id='4'/> 4. Streaming sidecar container
 ## <div id='4-1'/>4.1. Streaming sidecar container 개념
-- sidecar container
-	동일한 애플리케이션 컨테이너와 함께 실행되는 보조 컨테이너
-	기본 애플리케이션 코드를 직접 변경하지 않고 로깅, 모니터링, 보안 또는 데이터 동기화와 같은 추가 서비스나 기능을 제공하여 기본 앱 컨테이너 의 기능을 향상 또는 확장하는 데 사용
-	본래의 컨테이너는 기본 서비스에 충실하고, 추가 기능을 별도의 컨테이너에 적용
+- 동일한 애플리케이션 컨테이너와 함께 실행되는 보조 컨테이너
+- 기본 애플리케이션 코드를 직접 변경하지 않고 로깅, 모니터링, 보안 또는 데이터 동기화와 같은 추가 서비스나 기능을 제공하여 기본 앱 컨테이너 의 기능을 향상 또는 확장하는 데 사용
+- 본래의 컨테이너는 기본 서비스에 충실하고, 추가 기능을 별도의 컨테이너에 적용
 
 ## <div id='4-2'/>4.2. 로그 스트리밍 사이드카 컨테이너 운영
 ```
