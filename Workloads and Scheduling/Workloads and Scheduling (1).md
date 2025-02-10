@@ -196,7 +196,7 @@ API 서버 없이 특정 노드에 있는 kubelet 데몬에 의해 직접 관리
 
 - Static Pod 경로 변경
 kubelet의 config 파일 (/var/lib/kubelet/config.yaml) staticPodPath: /etc/kubernetes/manifests가 정의되어 있음
-디렉토리 수정 시 kubelet 데몬 재실행
+  	- 디렉토리 수정 시 kubelet 데몬 재실행
 ```
 $ systemctl restart kubelet
 ```
