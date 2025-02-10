@@ -201,26 +201,67 @@ kubelet의 config 파일 (/var/lib/kubelet/config.yaml) staticPodPath: /etc/kube
 $ systemctl restart kubelet
 ```
 ## <div id='2-2'/>2.2. Static Pod 생성
+- kubectl 명령어는 master node에서만 실행가능
+```
+$ kubectl run subtask-static-pod-nginx-yang --image=nginx --port=80 --dry-run=client -o yaml > subtask-static-pod-nginx-yang.yaml
+$ cat subtask-static-pod-nginx-yang.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: subtask-static-pod-nginx-yang
+  name: subtask-static-pod-nginx-yang
+spec:
+  containers:
+  - image: nginx
+    name: subtask-static-pod-nginx-yang
+    ports:
+    - containerPort: 80
+    resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
+```
+- 위에서 생성한 subtask-static-pod-nginx-yang.yaml 파일을 배포할 노드 /etc/kubernetes/manifests/에 생성
 ```
 $ ssh [배포할 노드명]
 $ cd /etc/kubernetes/manifests/
 $ sudo su
-# kubectl run subtask-static-pod-nginx-yang --image=nginx --port=80 --dry-run=client -o yaml > subtask-static-pod-nginx-yang.yaml
+# vi subtask-static-pod-nginx-yang.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: subtask-static-pod-nginx-yang
+  name: subtask-static-pod-nginx-yang
+spec:
+  containers:
+  - image: nginx
+    name: subtask-static-pod-nginx-yang
+    ports:
+    - containerPort: 80
+    resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
 
 # ls
-kube-apiserver.yaml  kube-controller-manager.yaml  kube-scheduler.yaml  subtask-static-pod-nginx-yang.yaml
+nginx-proxy.yml  subtask-static-pod-nginx-yang.yaml
 
 # exit
 
 $ kubectl get pod
 NAME                                              READY   STATUS    RESTARTS     AGE
 nfs-pod-provisioner-668f59bd7f-747gt              1/1     Running   4 (3d ago)   3d
-subtask-static-pod-nginx-yang-ta-task-cluster-1   1/1     Running   0            50s
+subtask-static-pod-nginx-yang-ta-task-cluster-2   1/1     Running   0            50s
 
 ```
 ## <div id='2-3'/>2.3. Static Pod 삭제
+- kubectl 명령어는 master node에서 실행
 ```
-$ ssh [배포할 노드명]
+$ ssh [배포한 노드명]
 
 $ cd /etc/kubernetes/manifests/
 
@@ -242,11 +283,12 @@ nfs-pod-provisioner-668f59bd7f-747gt   1/1     Running   4 (3d ago)   3d
 - Container
 어플리케이션을 의미함
 
-* kubernetes - conatiner 공식 문서
+* kubernetes - conatiner 공식 문서 <br/>
 쿠버네티스 클러스터에 있는 개별 node는 해당 노드에 할당된 파드를 구성하는 컨테이너들을 실행한다. 파드 내부에 컨테이너들은 같은 노드에서 실행될 수 있도록 같은 곳에 위치하고 함께 스케줄된다
 
 ## <div id='3-2'/>3.2. Multi container pod 생성
 ```
+$ kubectl run subtask-multi-pod-yang --image=nginx --dry-run=client -o yaml > subtask-multi-pod-yang.yaml
 $ vi subtask-multi-pod-yang.yaml 
 apiVersion: v1
 kind: Pod
@@ -260,9 +302,9 @@ spec:
   containers:
   - image: nginx
     name: nginx
-  - image: redis
+  - image: redis //추가
     name: redis
-  - image: memcached
+  - image: memcached //추가
     name: memcached
     resources: {}
   dnsPolicy: ClusterFirst
@@ -277,9 +319,9 @@ subtask-multi-pod-yang   3/3     Running   0          28s
 # <div id='4'/> 4. Streaming sidecar container
 ## <div id='4-1'/>4.1. Streaming sidecar container 개념
 - sidecar container
-동일한 애플리케이션 컨테이너와 함께 실행되는 보조 컨테이너
-기본 애플리케이션 코드를 직접 변경하지 않고 로깅, 모니터링, 보안 또는 데이터 동기화와 같은 추가 서비스나 기능을 제공하여 기본 앱 컨테이너 의 기능을 향상 또는 확장하는 데 사용
-본래의 컨테이너는 기본 서비스에 충실하고, 추가 기능을 별도의 컨테이너에 적용
+	- 동일한 애플리케이션 컨테이너와 함께 실행되는 보조 컨테이너 
+	- 기본 애플리케이션 코드를 직접 변경하지 않고 로깅, 모니터링, 보안 또는 데이터 동기화와 같은 추가 서비스나 기능을 제공하여 기본 앱 컨테이너 의 기능을 향상 또는 확장하는 데 사용
+	- 본래의 컨테이너는 기본 서비스에 충실하고, 추가 기능을 별도의 컨테이너에 적용
 
 ## <div id='4-2'/>4.2. 로그 스트리밍 사이드카 컨테이너 운영
 ```
