@@ -29,13 +29,15 @@
 ## <div id='1-1'/> 1.1. Pod 개념
 
 - 파드(Pod)
-쿠버네티스에서 생성하고 관리할 수 있는 배포 가능한 가장 작은 컴퓨팅 단위
-하나 이상의 컨테이너의 그룹
+	- 쿠버네티스에서 생성하고 관리할 수 있는 배포 가능한 가장 작은 컴퓨팅 단위
+	- 하나 이상의 컨테이너의 그룹
 ## <div id='1-2'/> 1.2. Pod 배포
 
 1) kubectl 명령을 통해 아래 조건에 맞는 subtask-pod-nginx.yaml 파일을 생성 후 cat 명령을 통해 확인
 > pod name: subtask-pod-nginx
+
 > image: nginx:1.14
+
 > port: 8080
 
 ```
@@ -66,10 +68,15 @@ namespace/subtask-yang created
 ```
 2) subtask-yang 라는 namespace를 만들고 아래 조건에 맞는 POD를 배포하고 describe 명령을 통해 확인
 > pod name: subtask-pod-01-yang
+
 > image: busybox
+
 > 환경변수 : CERT = "subtask-cert"
+
 > command: /bin/sh
+
 > args: -c "while true; do echo $(CERT); sleep 10;done"
+
 ```
 $ kubectl run subtask-pod-01 --image=nginx --dry-run=client -o yaml > subtask-pod-01-yang.yaml
 
