@@ -13,7 +13,7 @@
 1. [Pod](#1)
     * [1.1. Pod 개념](#1-1)
     * [1.2. Pod 배포](#1-2)
-    * [1.3. 생성 Pod 로그 라인 추출](#1-3)
+    * [1.3. Pod 로그 라인 추출](#1-3)
 2. [Static Pod](#2)
     * [2.1. Static Pod 개념](#2-1)
     * [2.2. Static Pod 생성](#2-2)
@@ -172,7 +172,7 @@ Events:
 
 
 
-## <div id='1-3'/> 1.3. 생성 Pod 로그 라인 추출
+## <div id='1-3'/> 1.3. Pod 로그 라인 추출
 ```
 $ kubectl logs dns-autoscaler-6ffb84bd6-jqwmm -n kube-system | grep "dns" > find-dns-autoscaler-yang.log
 $ cat find-dns-autoscaler-yang.log
