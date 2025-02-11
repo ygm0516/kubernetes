@@ -65,7 +65,6 @@ status: {}
 ```
 2) subtask-yang 라는 namespace를 만들고 아래 조건에 맞는 POD를 배포하고 describe 명령을 통해 확인
 > pod name: subtask-pod-01-yang
-
 > image: busybox <br/>
 > 환경변수 : CERT = "subtask-cert" <br/>
 > command: /bin/sh <br/>
