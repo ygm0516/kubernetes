@@ -37,11 +37,9 @@
 ## <div id='1-2'/> 1.2. Pod 배포
 
 1) kubectl 명령을 통해 아래 조건에 맞는 subtask-pod-nginx.yaml 파일을 생성 후 cat 명령을 통해 확인
-> pod name: subtask-pod-nginx
-
-> image: nginx:1.14
-
-> port: 8080
+> pod name: subtask-pod-nginx-yang <br/>
+> image: nginx:1.14 <br/>
+> port: 8080 
 
 ```
 $ kubectl run subtask-pod-nginx-yang --image=nginx:1.14 --port=8080 --dry-run=client -o yaml > nginx-test-yang.yaml
@@ -68,12 +66,9 @@ status: {}
 2) subtask-yang 라는 namespace를 만들고 아래 조건에 맞는 POD를 배포하고 describe 명령을 통해 확인
 > pod name: subtask-pod-01-yang
 
-> image: busybox
-
-> 환경변수 : CERT = "subtask-cert"
-
-> command: /bin/sh
-
+> image: busybox <br/>
+> 환경변수 : CERT = "subtask-cert" <br/>
+> command: /bin/sh <br/>
 > args: -c "while true; do echo $(CERT); sleep 10;done"
 
 ```
