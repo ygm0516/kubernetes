@@ -89,7 +89,7 @@ spec:
    env:
    - name: CERT
      value: "subtask-cert"
-   command: ["/bin/sh","-c","while true; do echo $CERT; sleep 10; done"]
+   command: ["/bin/sh","-c","while true; do echo $(CERT); sleep 10; done"]
 
 
 $ kubectl describe pod -n subtask-yang subtask-pod-01-yang 
