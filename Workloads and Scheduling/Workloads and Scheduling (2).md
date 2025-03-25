@@ -55,7 +55,7 @@
 > container name: webserver <br/>
 > container image: nginx:1.14 <br/>
 
-```bash
+```yaml
 $ kubectl create deployment webserver --namespace=yang-task --image=nginx:1.14 --replicas=2 --dry-run=client -o yaml > webserver-deployment-yang.yaml
 
 $ vi webserver-deployment-yang.yaml
@@ -88,7 +88,7 @@ status: {}
 ```
 
 - kubectl 명령을 통해 webserver Deployment의 pod 수를 3개로 확장
-```bash
+```yaml
 $ kubectl scale deployment -n yang-task webserver --replicas=3
 deployment.apps/webserver scaled
 
@@ -110,12 +110,12 @@ webserver-5785c4b975-zfnfs   1/1     Running   0          16s
   
 ## <div id='2-2'/> 2.2. Rolling Update / Roll back 수행 명령어
 - Rolling Update 명령어 예시
-```bash
+```yaml
 $ kubectl set image -n yang-task deployment webserver nginx=nginx:1.17  --record
 ```
 
 - Roll back 명령어
-```bash
+```yaml
 $ kubectl rollout undo deployment -n yang-task webserver 
 ```
 
@@ -126,7 +126,7 @@ $ kubectl rollout undo deployment -n yang-task webserver
 > Image version: 1.16<br/>
 > update image version: 1.17<br/>
 > label: app=payment, environment=production<br/>
-```bash
+```yaml
 $ kubectl create deployment webserver --namespace=yang-task --image=nginx:1.16 --replicas=3 --dry-run=client -o yaml > webserver-yang.yaml
 
 $ vi webserver-yang.yaml
@@ -193,7 +193,7 @@ Containers:
 - 컨테이너 이미지 버전을 rolling update
 - update record를 기록 
   * --record 옵션을 설정하지 않으면 history를 남기지 않기 때문에 롤백할 수 없다.
-```bash
+```yaml
 $ kubectl set image -n yang-task deployment webserver nginx=nginx:1.17  --record
 deployment.apps/webserver image updated
 
@@ -229,7 +229,7 @@ Containers:
 
 
 - history 확인 후 컨테이너 이미지를 previous version으로 roll back 
-```bash
+```yaml
 $ kubectl rollout history deployment -n yang-task webserver 
 REVISION  CHANGE-CAUSE
 1         kubectl set image deployment webserver nginx=nginx:1.17 --namespace=yang-task --record=true
@@ -272,7 +272,7 @@ Containers:
 
 ## <div id='3-2'/> 3.2. 스케줄링 불가능 설정
 - 특정 노드를 스케줄링 불가능하게 설정, 해당 노드에서 실행 중인 모든 Pod을 다른 node로 reschedule 
-```bash
+```yaml
 $ kubectl drain qna-cluster-4 --ignore-daemonsets --delete-emptydir-data
 $ kubectl get node
 NAME            STATUS                     ROLES           AGE   VERSION
@@ -284,7 +284,7 @@ qna-cluster-4   Ready,SchedulingDisabled   <none>          34d   v1.30.4
 ```
 ## <div id='3-3'/> 3.3. Ready 상태인 node log 기록
 - Ready 상태(NoSchedule로 taint된 node는 제외)인 node를 찾아 그 수를 notaint_ready_node_yang.log 에 기록
-```bash
+```yaml
 $ kubectl get nodes --no-headers | grep -w 'Ready' | grep -v 'SchedulingDisabled' | wc -l > notaint_ready_node_yang.log
 $ cat notaint_ready_node_yang.log
 3
@@ -302,8 +302,9 @@ $ cat notaint_ready_node_yang.log
 > pod image: nginx<br/>
 > node selector: sub-task-node-yang<br/>
 
-```bash
+```yaml
 $ kubectl label node qna-cluster-1 sub-task-node-yang=true
+
 $ kubectl get nodes -L sub-task-node-yang
 NAME            STATUS   ROLES           AGE   VERSION   SUB-TASK-NODE-YANG
 qna-cluster-1   Ready    control-plane   34d   v1.30.4   true
@@ -347,13 +348,15 @@ deployment.apps/webserver-sub created
 $ kubectl get pod -n yang-task -o wide
 NAME                             READY   STATUS    RESTARTS   AGE   IP               NODE            NOMINATED NODE   READINESS GATES
 webserver-sub-695df78d56-kbhpq   1/1     Running   0          23s   10.233.98.130    qna-cluster-1   <none>           <none>
+
+#node label 삭제 명령어(참고)
+$ kubectl label node qna-cluster-1 sub-task-node-yang-
 ```
 
 
-- <b>node label 삭제 명령어(참고)</b>
-  - ```kubectl label node [노드명] [label명]-```
 
-```bash
+
+```yaml
 $ kubectl label node qna-cluster-1 sub-task-node-yang-
 node/qna-cluster-1 unlabeled
 
@@ -363,14 +366,20 @@ qna-cluster-1   Ready    control-plane   34d   v1.30.4
 ```
 
 ## <div id='4-3'/> 4.3. 테인트(Taints)와 톨러레이션(Tolerations) 개념
-- Taint: 노드가 파드 셋을 제외
-  - Taint 예시<br>
-```bash
-kubectl taint nodes <노드명> key=value:NoSchedule
+- Taint
+  - Node가 오염되었기 때문에 Pod의 Schedule을 제한
+  - Taint는 특정 Node에 대해 특정 Pod만 실행할 수 있도록 역할을 제한하기 위한 목적
+  - Taint 예시
+```yaml
+kubectl taint node {nodename} {key}={value}:{option}
+
+# taint 해제
+kubectl taint node {nodename} {key}={value}:{option}-
 ```
-- Toleration: 특정 Taint가 설정된 노드에도 해당 파드가 스케줄링될 수 있도록 허용
-  - Toleration  예시<br>
-```bash
+- Toleration: 해당 "오염"을 견딜 수 있는 "내성"
+  - Taint 설정이 되어있더라도 해당 Taint에 부합하는 value를 Pod Tolerations에 지정하면 해당 Node에 Schedule 가능
+  - Toleration  예시
+```yaml
 apiVersion: v1
 kind: Pod
 metadata:
@@ -391,13 +400,13 @@ spec:
 # <div id='5'/> 5. ConfigMap & Secret
 
 ## <div id='5-1'/> 5.1. kubectl create configmap option 개념
-```bash
+```yaml
 $ kubectl create configmap <이름> --from-literal=<키>=<값>
 $ kubectl create configmap <이름> --from-file=<경로>
 ```
 
 ## <div id='5-2'/> 5.2. kubectl create secret option 개념
-```bash
+```yaml
 $ kubectl create secret generic <이름> --from-literal=<키>=<값>
 ```
 
@@ -405,7 +414,7 @@ $ kubectl create secret generic <이름> --from-literal=<키>=<값>
 
 ## <div id='5-3'/> 5.3. openSSL을 이용하여 임의의 TLS, Secret 생성
 - 키와 인증서 생성
-```bash
+```yaml
 $ openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout tls.key -out tls.crt -subj "/CN=example.com"
 ..+...+..+..........+...........+....+..+.+............+...........+.+...+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*....+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*.......+..+...+............+...+....+...+.................+.+..............+....+..+...+.........................+.........+...+..+.+.................+.......+.....+.......+.....+.........+.+........+..........+.....+......+.......+........+......+.+..+.+.........+..+..........+..............+....+...+........+.+.........+......+.....+......+.............+.....+....+........+....+........+.+......+...+.....+...+...+.......+........+.+........+............+...............+.+...+..+.......+..+...+............................+.........+...+..+...+.......+.........+.........+........+...+....+...+............+......+...........+...+.......+..............+....+...+...+.....+.......+............+..................+...+..+.......+..+.+..+.......+.....+.........+.+...+.....+...+....+.....+.+...............+...+..+.........+.+..+......+.+.....+.+...+..............+...+...................+.........+..+...+.......+.........+......+..+.+......+.....+......+...+......+.+..............+..........+...+.....+...+..........+..+...+...+....+..+.+...............+..+............+.+..+......+......+......+.........+...+.+..+....+...........+...+.+...........+....+...+..+...+.+......+...............+......+..+......+.+...+...+...+.................+.......+..+...+......+....+...+........+......................+............+..+.+.....+...+............+...+....+...+..+...............+...+.......+.....+.+..+............+.+.................+.......+..+.............+..+....+.....+....+..+....+..+....+.....+......+...............+.......+.................+...+.......+...+...+..+......+..........+.....+.........+.+......+...+......+......+........+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ........+.........+...+..+.+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*.+.+...............+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*.......+..........+...+.........+..............+....+...+.....+...+......+.+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -415,7 +424,7 @@ $ ls
 tls.crt  tls.key
 ```
 - TLS Secret 생성
-```bash
+```yaml
 $ kubectl create secret tls tls-secret-yang -n yang-task --cert=tls.crt --key=tls.key
 secret/tls-secret-yang created
 
@@ -428,7 +437,7 @@ tls-secret-yang   kubernetes.io/tls   2      17s
 > DBNAME: mysql<br/>
 > USER: admin
 
-```bash
+```yaml
 $ kubectl create configmap app-config-yang --from-literal=DBNAME=mysql --from-literal=USER=admin -n yang-task
 
 $ kubectl get configmaps -n yang-task 
@@ -436,7 +445,7 @@ NAME               DATA   AGE
 app-config-yang    2      10s
 ```
 - nginx 컨테이너에 환경변수로 할당
-```bash
+```yaml
 $ kubectl create deployment nginx-yang --namespace=yang-task --image=nginx --dry-run=client -o yaml > nginx_yang.yaml
 
 
@@ -478,7 +487,7 @@ NAME                          READY   STATUS    RESTARTS   AGE
 nginx-yang-6f7d7588cf-9gt5z   1/1     Running   0          16s
 ```
 - 컨테이너에 접근하여 configmap 환경변수와 secret 을 출력
-```bash
+```yaml
 $ kubectl exec -n yang-task -it nginx-yang-6f7d7588cf-9gt5z -- env | grep DBNAME
 DBNAME=mysql
 
