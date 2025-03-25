@@ -351,13 +351,6 @@ webserver-sub-695df78d56-kbhpq   1/1     Running   0          23s   10.233.98.13
 
 #node label 삭제 명령어(참고)
 $ kubectl label node qna-cluster-1 sub-task-node-yang-
-```
-
-
-
-
-```yaml
-$ kubectl label node qna-cluster-1 sub-task-node-yang-
 node/qna-cluster-1 unlabeled
 
 $ kubectl get node -L sub-task-node-yang
