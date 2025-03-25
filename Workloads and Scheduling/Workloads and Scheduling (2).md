@@ -1,4 +1,4 @@
-### [kubernetes](https://github.com/ygm0516/kubernetes) > [Workloads and Scheduling(2)](https://github.com/ygm0516/kubernetes/tree/main/Workloads%20and%20Scheduling) > Workloads and Scheduling (2).md
+### [kubernetes](https://github.com/ygm0516/kubernetes) > [Workloads and Scheduling](https://github.com/ygm0516/kubernetes/tree/main/Workloads%20and%20Scheduling) > Workloads and Scheduling (2).md
 
 ## Workloads and Scheduling (2).md
 
