@@ -36,6 +36,13 @@
 
 # <div id='1'/> 1. Deployment
 ## <div id='1-1'/> 1.1. Scale-in/Scale-out 개념
+- deployment : k8s에서 애플리케이션 단위를 관리하는 controller
+  - kubernetes의 최소 유닛인 pod에 대한 기준 spec을 정의한 object
+  - pod의 scale-in/out 되는 기준을 정의
+  - pod의 배포되고 update되는 모든 버전을 추적 가능
+  - 배포된 pod에 대한 rollback을 수행 가능
+  - 즉 개념적으로 deployment=replicaset + pod + history<br> ```replicaset을 만드는 것보다 더 윗단계의 선언(추상표현)```
+    - deployment가 replicaset 생성 -> replicaset이 pod 생성
 - 스케일 인(scale-in): 레플리카의 수를 줄이는 것
 - 스케일 아웃(scale-out): 레플리카의 수를 늘리는 것을 의미
   
@@ -96,7 +103,7 @@ webserver-5785c4b975-zfnfs   1/1     Running   0          16s
 ## <div id='2-1'/> 2.1. Rolling Update / Roll back 개념
 - Rolling Update
     - 서비스 중단 없이 애플리케이션을 점진적으로 새로운 버전으로 업데이트하는 방법
-    - 새로운 파드를 생성하고 기존 파드를 하나씩 종료하면서 업데이트를 수행
+    - 새로운 파드를 생성하고 기존 파드를 하나씩 종료하면서 업데이트를 수행(무중단 배포)
 
 - Roll back
     - 문제가 발생했을 경우 이전 버전으로 되돌리는 작업
