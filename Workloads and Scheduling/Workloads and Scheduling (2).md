@@ -191,15 +191,42 @@ Containers:
 
 
 - 컨테이너 이미지 버전을 rolling update
+- update record를 기록 
+  * --record 옵션을 설정하지 않으면 history를 남기지 않기 때문에 롤백할 수 없다.
 ```bash
 $ kubectl set image -n yang-task deployment webserver nginx=nginx:1.17  --record
 deployment.apps/webserver image updated
 
 $ kubectl rollout status deployment -n yang-task webserver
 deployment "webserver" successfully rolled out
+
+$ kubectl describe pod -n yang-task webserver-5f44b7bcfd-l7knn 
+Name:             webserver-5f44b7bcfd-l7knn
+Namespace:        yang-task
+Priority:         0
+Service Account:  default
+Node:             qna-cluster-4/10.100.2.54
+Start Time:       Tue, 25 Mar 2025 02:14:14 +0000
+Labels:           app=webserver
+                  pod-template-hash=5f44b7bcfd
+Annotations:      cni.projectcalico.org/containerID: 783b9c4db38d96dc36601a0ad563385e053420d007857d0af30cf2fff41b4e2e
+                  cni.projectcalico.org/podIP: 10.233.68.140/32
+                  cni.projectcalico.org/podIPs: 10.233.68.140/32
+Status:           Running
+IP:               10.233.68.140
+IPs:
+  IP:           10.233.68.140
+Controlled By:  ReplicaSet/webserver-5f44b7bcfd
+Containers:
+  nginx:
+    Container ID:   cri-o://5d21c4a8cb23fe7fac34205df57f6846652bb8cf55afeab9051b4d442e585e72
+    Image:          nginx:1.17
+
+---
+
 ```
-- update record를 기록 
-  * --record 옵션을 설정하지 않으면 history를 남기지 않기 때문에 롤백할 수 없다.
+
+
 
 - history 확인 후 컨테이너 이미지를 previous version으로 roll back 
 ```bash
@@ -208,33 +235,31 @@ deployment.apps/webserver
 REVISION  CHANGE-CAUSE
 1         kubectl set image deployment webserver nginx=nginx:1.17 --namespace=yang-task --record=true
 
+$ kubectl rollout undo deployment -n yang-task webserver 
+deployment.apps/webserver rolled back
 
-$ kubectl describe pod -n yang-task webserver-696dd55885-fjlnf
-webserver-696dd55885-bhrw6  webserver-696dd55885-fjlnf  webserver-696dd55885-wt8lg
-ubuntu@qna-cluster-1:~/workspace/yang/sub$ kubectl describe pod -n yang-task webserver-696dd55885-bhrw6 
-Name:             webserver-696dd55885-bhrw6
+$ kubectl describe pod -n yang-task webserver-6cbfc4858f-sr4nd 
+Name:             webserver-6cbfc4858f-sr4nd
 Namespace:        yang-task
 Priority:         0
 Service Account:  default
 Node:             qna-cluster-2/10.100.2.160
-Start Time:       Mon, 24 Mar 2025 07:56:03 +0000
-Labels:           app=payment
-                  environment=production
-                  pod-template-hash=696dd55885
-Annotations:      cni.projectcalico.org/containerID: 0f6c098a4c25be974214d16054f1ec98817ff21eb97fc2228ca295e53826cf62
-                  cni.projectcalico.org/podIP: 10.233.85.49/32
-                  cni.projectcalico.org/podIPs: 10.233.85.49/32
+Start Time:       Tue, 25 Mar 2025 02:16:55 +0000
+Labels:           app=webserver
+                  pod-template-hash=6cbfc4858f
+Annotations:      cni.projectcalico.org/containerID: 1ac96becdc91465c3eb4df6d91803d16b878b11e9e2b557fad0d946137869de3
+                  cni.projectcalico.org/podIP: 10.233.85.10/32
+                  cni.projectcalico.org/podIPs: 10.233.85.10/32
 Status:           Running
-IP:               10.233.85.49
+IP:               10.233.85.10
 IPs:
-  IP:           10.233.85.49
-Controlled By:  ReplicaSet/webserver-696dd55885
+  IP:           10.233.85.10
+Controlled By:  ReplicaSet/webserver-6cbfc4858f
 Containers:
   nginx:
-    Container ID:   cri-o://ce08e10e1c4bb939d12e83e16496999ef4cf13ba024d6ceff30d643a6d6eb76a
-    Image:          nginx:1.17
+    Container ID:   cri-o://de5fb226976872c620862c68ffb5402215a27351428295d237ebbc8c798d4ce3
+    Image:          nginx:1.16
 ---
-
 
 ```
 
