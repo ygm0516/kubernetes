@@ -364,14 +364,17 @@ qna-cluster-1   Ready    control-plane   34d   v1.30.4
   - Taint는 특정 Node에 대해 특정 Pod만 실행할 수 있도록 역할을 제한하기 위한 목적
   - Taint 예시
 ```yaml
-kubectl taint node {nodename} {key}={value}:{option}
-
+$ kubectl taint nodes {nodename} {key}={value}:{option}
+$ kubectl taint nodes node1 key1=value1:NoSchedule
 # taint 해제
-kubectl taint node {nodename} {key}={value}:{option}-
+$ kubectl taint nodes {nodename} {key}={value}:{option}-
+$ kubectl taint nodes node1 key1=value1:NoSchedule-
 ```
 - Toleration: 해당 "오염"을 견딜 수 있는 "내성"
   - Taint 설정이 되어있더라도 해당 Taint에 부합하는 value를 Pod Tolerations에 지정하면 해당 Node에 Schedule 가능
   - Toleration  예시
+    - PodSpec에서 파드에 대한 톨러레이션을 지정
+    - 위의 kubectl taint 라인에 의해 생성된 테인트와 일치하기 때문에 node1에 스케줄 가능
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -384,8 +387,8 @@ spec:
   - name: nginx
     image: nginx
     imagePullPolicy: IfNotPresent
-  tolerations: # pod 내에 추가
-  - key: "example-key"
+  tolerations: # tolerations 추가
+  - key: "key1"
     operator: "Exists"
     effect: "NoSchedule"
 ```
@@ -479,7 +482,7 @@ $ kubectl get pod -n yang-task
 NAME                          READY   STATUS    RESTARTS   AGE
 nginx-yang-6f7d7588cf-9gt5z   1/1     Running   0          16s
 ```
-- 컨테이너에 접근하여 configmap 환경변수와 secret 을 출력
+- 컨테이너에 접근하여 configmap 환경변수와 secret을 출력
 ```yaml
 $ kubectl exec -n yang-task -it nginx-yang-6f7d7588cf-9gt5z -- env | grep DBNAME
 DBNAME=mysql
