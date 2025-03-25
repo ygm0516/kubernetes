@@ -103,7 +103,6 @@ webserver-5785c4b975-zfnfs   1/1     Running   0          16s
 - Rolling Update 명령어 예시
 ```bash
 $ kubectl set image -n yang-task deployment webserver nginx=nginx:1.17  --record
-deployment.apps/webserver image updated
 ```
 
 - Roll back 명령어
