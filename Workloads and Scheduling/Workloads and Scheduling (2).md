@@ -231,7 +231,6 @@ Containers:
 - history 확인 후 컨테이너 이미지를 previous version으로 roll back 
 ```bash
 $ kubectl rollout history deployment -n yang-task webserver 
-deployment.apps/webserver 
 REVISION  CHANGE-CAUSE
 1         kubectl set image deployment webserver nginx=nginx:1.17 --namespace=yang-task --record=true
 
