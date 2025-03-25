@@ -241,12 +241,22 @@ Containers:
 ## <div id='3-2'/> 3.2. 스케줄링 불가능 설정
 - 특정 노드를 스케줄링 불가능하게 설정, 해당 노드에서 실행 중인 모든 Pod을 다른 node로 reschedule 
 ```bash
-$ kubectl drain <NODE_NAME> --ignore-daemonsets –force
+$ kubectl drain qna-cluster-4 --ignore-daemonsets --delete-emptydir-data
+$ kubectl get node
+NAME            STATUS                     ROLES           AGE   VERSION
+qna-cluster-1   Ready                      control-plane   34d   v1.30.4
+qna-cluster-2   Ready                      control-plane   34d   v1.30.4
+qna-cluster-3   Ready                      control-plane   34d   v1.30.4
+qna-cluster-4   Ready,SchedulingDisabled   <none>          34d   v1.30.4
+
 ```
 ## <div id='3-3'/> 3.3. Ready 상태인 node log 기록
 - Ready 상태(NoSchedule로 taint된 node는 제외)인 node를 찾아 그 수를 notaint_ready_node_yang.log 에 기록
 ```bash
-$ kubectl get nodes --no-headers | grep -w 'Ready' | grep -v 'NoSchedule' | wc -l > notaint_ready_node_yang.log
+$ kubectl get nodes --no-headers | grep -w 'Ready' | grep -v 'SchedulingDisabled' | wc -l > notaint_ready_node_yang.log
+$ cat notaint_ready_node_yang.log
+3
+
 ```
 # <div id='4'/> 4. Pod Scheduling
 
@@ -255,29 +265,71 @@ $ kubectl get nodes --no-headers | grep -w 'Ready' | grep -v 'NoSchedule' | wc -
 - Selector: 특정 라벨을 기반으로 원하는 리소스를 필터링하는 방법
 ## <div id='4-2'/> 4.2. 특정 node pod 배포
 - Label 및 selector 를 활용하여 다음 조건의 POD을 특정 NODE에 배포 될 수 있도록 구성
-> node label: sub-task-node<br/>
+> node label: sub-task-node-yang<br/>
 > pod name: webserver<br/>
 > pod image: nginx<br/>
-> node selector: sub-task-node<br/>
+> node selector: sub-task-node-yang<br/>
 
 ```bash
-$ kubectl label node <노드명> sub-task-node=true
-$ kubectl get nodes -L <레이블 키>
-$ kubectl create deployment webserver --namespace=yang-task --image=nginx --dry-run=client -o yaml > node_label_yang.yaml
+$ kubectl label node qna-cluster-1 sub-task-node-yang=true
+$ kubectl get nodes -L sub-task-node-yang
+NAME            STATUS   ROLES           AGE   VERSION   SUB-TASK-NODE-YANG
+qna-cluster-1   Ready    control-plane   34d   v1.30.4   true
+qna-cluster-2   Ready    control-plane   34d   v1.30.4   
+qna-cluster-3   Ready    control-plane   34d   v1.30.4   
+qna-cluster-4   Ready    <none>          34d   v1.30.4   
+
+$ kubectl create deployment webserver-sub --namespace=yang-task --image=nginx --dry-run=client -o yaml > node_label_yang.yaml
 $ vi node_label_yang.yaml
-apiVersion: v1
-kind: Pod
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: webserver
-  labels:
-    app: webserver
+  creationTimestamp: null
+  labels:
+    app: node_label_webserver
+  name: node_label_webserver
+  namespace: yang-task
 spec:
-  containers:
-  - name: nginx
-    image: nginx
-  nodeSelector:
-    sub-task-node: "true"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: node_label_webserver
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: node_label_webserver
+    spec:
+      nodeSelector:
+        sub-task-node-yang: "true"   # 해당 라벨이 있는 노드에만 배포
+      containers:
+      - image: nginx
+        name: nginx
+        resources: {}
+status: {}
+
+$ kubectl apply -f node_label_yang.yaml 
+deployment.apps/webserver-sub created
+
+$ kubectl get pod -n yang-task -o wide
+NAME                             READY   STATUS    RESTARTS   AGE   IP               NODE            NOMINATED NODE   READINESS GATES
+webserver-sub-695df78d56-kbhpq   1/1     Running   0          23s   10.233.98.130    qna-cluster-1   <none>           <none>
 ```
+
+
+- <b>node label 삭제 명령어(참고)</b>
+  - ```kubectl label node [노드명] [label명]-```
+
+```bash
+$ kubectl label node qna-cluster-1 sub-task-node-yang-
+node/qna-cluster-1 unlabeled
+
+$ kubectl get node -L sub-task-node-yang
+NAME            STATUS   ROLES           AGE   VERSION   SUB-TASK-NODE-YANG
+qna-cluster-1   Ready    control-plane   34d   v1.30.4   
+```
+
 ## <div id='4-3'/> 4.3. 테인트(Taints)와 톨러레이션(Tolerations) 개념
 - Taint: 특정 노드에 “이 파드는 배포되지 말라”라는 제약 조건을 설정
     - Taint 예시<br>
