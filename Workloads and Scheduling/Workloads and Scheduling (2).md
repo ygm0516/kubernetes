@@ -36,7 +36,8 @@
 
 # <div id='1'/> 1. Deployment
 ## <div id='1-1'/> 1.1. Scale-in/Scale-out 개념
-- 스케일 인(scale-in)은 레플리카의 수를 줄이는 것을, 스케일 아웃(scale-out)은 레플리카의 수를 늘리는 것을 의미
+- 스케일 인(scale-in): 레플리카의 수를 줄이는 것
+- 스케일 아웃(scale-out): 레플리카의 수를 늘리는 것을 의미
   
 ## <div id='1-2'/> 1.2. deployment pod 확장
 - kubectl 명령을 통해 webserver 라는 이름으로 yaml 을 생성
@@ -99,6 +100,7 @@ webserver-5785c4b975-zfnfs   1/1     Running   0          16s
 
 - Roll back
     - 문제가 발생했을 경우 이전 버전으로 되돌리는 작업
+  
 ## <div id='2-2'/> 2.2. Rolling Update / Roll back 수행 명령어
 - Rolling Update 명령어 예시
 ```bash
@@ -109,6 +111,7 @@ $ kubectl set image -n yang-task deployment webserver nginx=nginx:1.17  --record
 ```bash
 $ kubectl rollout history deployment -n yang-task webserver 
 ```
+
 ## <div id='2-3'/> 2.3. Rolling Update / Roll back 실습
 - Deployment를 이용해 nginx 파드를 3개 배포
 > name: webserver<br/>
@@ -153,8 +156,6 @@ status: {}
 $ kubectl apply -f webserver-yang.yaml 
 deployment.apps/webserver created
 
-
-
 $ kubectl describe pod -n yang-task webserver-6855fb78d6-26dlx 
 Name:             webserver-6855fb78d6-26dlx
 Namespace:        yang-task
@@ -181,10 +182,12 @@ Containers:
 
 ```
 
+
 - 컨테이너 이미지 버전을 rolling update
 ```bash
 $ kubectl set image -n yang-task deployment webserver nginx=nginx:1.17  --record
 deployment.apps/webserver image updated
+
 $ kubectl rollout status deployment -n yang-task webserver
 deployment "webserver" successfully rolled out
 ```
@@ -223,7 +226,6 @@ Containers:
   nginx:
     Container ID:   cri-o://ce08e10e1c4bb939d12e83e16496999ef4cf13ba024d6ceff30d643a6d6eb76a
     Image:          nginx:1.17
-
 ---
 
 
@@ -233,9 +235,9 @@ Containers:
 # <div id='3'/> 3. Node management
 ## <div id='3-1'/> 3.1. kubectl drain option 개념
 특정 노드의 스케줄링을 중단하고, 해당 노드에서 실행 중인 모든 파드를 강제로 다른 노드로 이동
-  - --ignore-daemonsets : DaemonSet 파드를 제외하고 종료(필수)
+  - --ignore-daemonsets : DaemonSet 파드를 제외하고 종료
   - --delete-local-data : 로컬 데이터가 있는 파드도 강제로 종료
-
+  - --delete-emptydir-data : 노드가 비워지면 삭제되는 로컬 데이터인 emptyDir을 사용하는 pod가 있더라도 계속 진행
 
 ## <div id='3-2'/> 3.2. 스케줄링 불가능 설정
 - 특정 노드를 스케줄링 불가능하게 설정, 해당 노드에서 실행 중인 모든 Pod을 다른 node로 reschedule 
@@ -330,19 +332,30 @@ qna-cluster-1   Ready    control-plane   34d   v1.30.4
 ```
 
 ## <div id='4-3'/> 4.3. 테인트(Taints)와 톨러레이션(Tolerations) 개념
-- Taint: 특정 노드에 “이 파드는 배포되지 말라”라는 제약 조건을 설정
-    - Taint 예시<br>
-    ```kubectl taint nodes <노드명> key=value:NoSchedule```
-    - Toleration  예시<br>
- ```bash
-# pod 내에 추가
-tolerations:
-- key: "key"
-  operator: "Equal"
-  value: "value"
-  effect: "NoSchedule"
+- Taint: 노드가 파드 셋을 제외
+  - Taint 예시<br>
+```bash
+kubectl taint nodes <노드명> key=value:NoSchedule
 ```
 - Toleration: 특정 Taint가 설정된 노드에도 해당 파드가 스케줄링될 수 있도록 허용
+  - Toleration  예시<br>
+```bash
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+  labels:
+    env: test
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+    imagePullPolicy: IfNotPresent
+  tolerations: # pod 내에 추가
+  - key: "example-key"
+    operator: "Exists"
+    effect: "NoSchedule"
+```
 
 # <div id='5'/> 5. ConfigMap & Secret
 
@@ -433,7 +446,7 @@ $ kubectl get pod -n yang-task
 NAME                          READY   STATUS    RESTARTS   AGE
 nginx-yang-6f7d7588cf-9gt5z   1/1     Running   0          16s
 ```
-- 컨테이너에 접근하여 configmap 환경변수와 secret 을 출력\
+- 컨테이너에 접근하여 configmap 환경변수와 secret 을 출력
 ```bash
 $ kubectl exec -n yang-task -it nginx-yang-6f7d7588cf-9gt5z -- env | grep DBNAME
 DBNAME=mysql
