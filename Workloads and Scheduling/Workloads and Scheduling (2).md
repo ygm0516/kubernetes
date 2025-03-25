@@ -116,7 +116,7 @@ $ kubectl set image -n yang-task deployment webserver nginx=nginx:1.17  --record
 
 - Roll back 명령어
 ```bash
-$ kubectl rollout status deployment -n yang-task webserver
+$ kubectl rollout undo deployment -n yang-task webserver 
 ```
 
 ## <div id='2-3'/> 2.3. Rolling Update / Roll back 실습
