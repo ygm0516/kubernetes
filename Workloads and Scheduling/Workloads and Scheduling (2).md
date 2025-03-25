@@ -13,7 +13,7 @@
 
 ## 목차
 - [ 1. Deployment](#-1-deployment)
-  - [ 1.1. Scale-in/Scale-out 개념](#-11-scale-inscale-out-개념)
+  - [ 1.1. Deployment, Scale-in/Scale-out 개념](#-11-deployment-scale-inscale-out-개념)
   - [ 1.2. deployment pod 확장](#-12-deployment-pod-확장)
 - [ 2. Rolling Update \& Roll back](#-2-rolling-update--roll-back)
   - [ 2.1. Rolling Update / Roll back 개념](#-21-rolling-update--roll-back-개념)
@@ -35,7 +35,7 @@
 
 
 # <div id='1'/> 1. Deployment
-## <div id='1-1'/> 1.1. Scale-in/Scale-out 개념
+## <div id='1-1'/> 1.1. Deployment, Scale-in/Scale-out 개념
 - deployment : k8s에서 애플리케이션 단위를 관리하는 controller
   - kubernetes의 최소 유닛인 pod에 대한 기준 spec을 정의한 object
   - pod의 scale-in/out 되는 기준을 정의
@@ -209,7 +209,7 @@ REVISION  CHANGE-CAUSE
 1         kubectl set image deployment webserver nginx=nginx:1.17 --namespace=yang-task --record=true
 
 
-$ kubectl describe pod -n yang-task webserver-696dd55885- 
+$ kubectl describe pod -n yang-task webserver-696dd55885-fjlnf
 webserver-696dd55885-bhrw6  webserver-696dd55885-fjlnf  webserver-696dd55885-wt8lg
 ubuntu@qna-cluster-1:~/workspace/yang/sub$ kubectl describe pod -n yang-task webserver-696dd55885-bhrw6 
 Name:             webserver-696dd55885-bhrw6
