@@ -31,7 +31,8 @@
   - [ 5.1. kubectl create configmap option 개념](#-51-kubectl-create-configmap-option-개념)
   - [ 5.2. kubectl create secret option 개념](#-52-kubectl-create-secret-option-개념)
   - [ 5.3. openSSL을 이용하여 임의의 TLS, Secret 생성](#-53-openssl을-이용하여-임의의-tls-secret-생성)
-  - [ 5.4. configMap 생성 및 컨테이너 환경 변수 할당 및 출력](#-54-configmap-생성-및-컨테이너-환경-변수-할당-및-출력)
+  - [ 5.4. configMap 생성](#-54-configmap-생성)
+  - [ 5.5. 컨테이너 환경 변수 할당 및 출력](#-55-컨테이너-환경-변수-할당-및-출력)
 
 
 # <div id='1'/> 1. Deployment
@@ -429,7 +430,7 @@ $ kubectl get secret -n yang-task
 NAME              TYPE                DATA   AGE
 tls-secret-yang   kubernetes.io/tls   2      17s
 ```
-## <div id='5-4'/> 5.4. configMap 생성 및 컨테이너 환경 변수 할당 및 출력
+## <div id='5-4'/> 5.4. configMap 생성 
 - 아래 변수 configmap 등록
 > DBNAME: mysql<br/>
 > USER: admin
@@ -441,6 +442,8 @@ $ kubectl get configmaps -n yang-task
 NAME               DATA   AGE
 app-config-yang    2      10s
 ```
+
+## <div id='5-5'/> 5.5. 컨테이너 환경 변수 할당 및 출력
 - nginx 컨테이너에 환경변수로 할당
 ```yaml
 $ kubectl create deployment nginx-yang --namespace=yang-task --image=nginx --dry-run=client -o yaml > nginx_yang.yaml
@@ -495,7 +498,6 @@ DBNAME=mysql
 
 $ kubectl exec -n yang-task -it nginx-yang-6f7d7588cf-9gt5z -- env | grep USER
 USER=admin
-
 
 $ kubectl exec -n yang-task -it nginx-yang-6f7d7588cf-9gt5z -- env | grep tls-secret-yang
 tls-secret-yang=-----BEGIN CERTIFICATE-----
