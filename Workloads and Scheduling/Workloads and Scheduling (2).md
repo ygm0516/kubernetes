@@ -376,6 +376,7 @@ $ kubectl taint nodes node1 key1=value1:NoSchedule-
     - PodSpec에서 파드에 대한 톨러레이션을 지정
     - 위의 kubectl taint 라인에 의해 생성된 테인트와 일치하기 때문에 node1에 스케줄 가능
 ```yaml
+#Toleration 참고 yaml
 apiVersion: v1
 kind: Pod
 metadata:
@@ -467,13 +468,18 @@ spec:
         app: nginx-yang
     spec:
       containers:
-      - name: nginx
-        image: nginx
+      - image: nginx
+        name: nginx
         envFrom: #configmap 추가
-          - configMapRef: 
+          - configMapRef:
               name: app-config-yang
+        env:
+        - name: tls-secret-yang #secret 추가
+          valueFrom:
+            secretKeyRef: 
+              name: tls-secret-yang
+              key: tls.crt
 status: {}
-
 
 $ kubectl apply -f nginx_yang.yaml
 deployment.apps/nginx-yang created
@@ -489,5 +495,9 @@ DBNAME=mysql
 
 $ kubectl exec -n yang-task -it nginx-yang-6f7d7588cf-9gt5z -- env | grep USER
 USER=admin
+
+
+$ kubectl exec -n yang-task -it nginx-yang-6f7d7588cf-9gt5z -- env | grep tls-secret-yang
+tls-secret-yang=-----BEGIN CERTIFICATE-----
 ```
 
