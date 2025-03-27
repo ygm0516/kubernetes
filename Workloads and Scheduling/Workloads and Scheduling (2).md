@@ -198,6 +198,7 @@ Containers:
 $ kubectl set image -n yang-task deployment webserver nginx=nginx:1.17  --record
 deployment.apps/webserver image updated
 
+# --to-revision=0 <해당 옵션을 사용하면 원하는 시점으로 rollback가능>
 $ kubectl rollout status deployment -n yang-task webserver
 deployment "webserver" successfully rolled out
 
