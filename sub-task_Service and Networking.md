@@ -183,6 +183,7 @@ $ sudo lsns -p $NETSHPID
 4026532841 pid         2 30608 root  /bin/bash -c while true; do sleep 5; curl localhost; done
 4026532842 cgroup      2 30608 root  /bin/bash -c while true; do sleep 5; curl localhost; done
 
+
 $ sudo crictl inspect e0325ba860f56 | jq
  "namespaces": [
           {
@@ -206,6 +207,7 @@ $ sudo crictl inspect e0325ba860f56 | jq
           {
             "type": "cgroup"
           }
+...
 
 $ sudo crictl inspect 0caef5cf4b057 | jq
  "namespaces": [
@@ -231,7 +233,7 @@ $ sudo crictl inspect 0caef5cf4b057 | jq
             "type": "cgroup"
           }
         ]
-
+...
 
 ## 다른 파드(다른 네트워크 네임스페이스에 위치함)
 $ sudo lsns -p 45895
@@ -262,10 +264,12 @@ $ sudo lsns -p 45895
 ### 1-2. Service Network 구조를 이해하고 내용을 간략히 작성
 - Service
   - Pod 네트워크와 동일하게 service 네트워크 또한 가상 IP 주소를 가지지만 다른게 동작함
-  - 
+  - Pod가 죽거나 재시작하거나, 혹은 다른 노드로 재배치 --> 서버 pod IP 변경 클라이언트Pod 에서는 알지 못하여 문제가 발생 --> 이러한 문제를 해결하기 위해 `service`사용
+  - 쿠버네티스 리소스 타입 중 하나로 각 포드로 traffic을 포워딩해주는 프록시 역할
+  - ip 주소로 직접 요청 / DNS 이름으로 요청 가능
+    - 내부 클러스터 DNS를 제공
 
-
-
+- Service Network 구조
 
 ### 1-3. Ingress Network 구조를 이해하고 내용을 간략히 작성
 
