@@ -542,50 +542,24 @@ namespace/customera labeled
 > "test.foo.com/app" 접속했을 때 app-nginx 서비스로 연결<br>
 
 ```bash
-$ kubectl create namespace ingress
+$ kubectl create namespace ingress-yang
 namespace/ingress created
 
-$ kubectl run ingress-nginx --image=nginx --port=80 -n ingress 
+$ kubectl run ingress-nginx --image=nginx --port=80 -n ingress-yang
 pod/ingress-nginx created
 
-$ kubectl run app-nginx --image=nginx --port=80 -n ingress
+$ kubectl run app-nginx --image=nginx --port=80 -n ingress-yang
 pod/app-nginx created
 
-$ kubectl expose pod ingress-nginx --port=80 --name=ingress-nginx-svc -n ingress
+$ kubectl expose pod ingress-nginx --port=80 --name=ingress-nginx-svc -n ingress-yang
 service/ingress-nginx-svc exposed
 
-$ kubectl expose pod app-nginx --port=80 --name=app-nginx-svc -n ingress
+$ kubectl expose pod app-nginx --port=80 --name=app-nginx-svc -n ingress-yang
 service/app-nginx-svc exposed
 
 
 $ vi ingress-nginx.yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: example-ingress
-  namespace: ingress
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
-spec:
-  rules:
-  - host: test.foo.com
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: ingress-nginx-svc
-            port:
-              number: 80
-      - path: /app
-        pathType: Prefix
-        backend:
-          service:
-            name: app-nginx-svc
-            port:
-              number: 80
-
+##수정 필요
 
 $ kubectl apply -f ingress.yaml 
 ingress.networking.k8s.io/example-ingress created
@@ -624,3 +598,27 @@ coredns-69c4df9f67-t5cb2   1/1     Running   0          265d
 > 클러스터 내에서 service와 pod 이름을 조회할 수 있는지 테스트합니다.<br>
 > • dns 조회에 사용하는 pod 이미지는 busybox:1.28이고, service와 pod 이름 조회는 nlsookup을 사용합니다.<br>
 > • service 조회 결과와 pod name 조회 결과를 추출하세요.<br>
+
+```bash
+$ kubectl run resolver --image=nginx --port=80
+pod/resolver created
+
+$ kubectl expose pod resolver --port=80 --name=resolver-service
+service/resolver-service exposed
+
+$ kubectl run dns-client --image=busybox:1.28 --restart=Never --command -- sleep 3600
+pod/dns-client created
+
+$ kubectl exec -it dns-client -- /bin/sh
+/ # nslookup resolver-service
+Server:    169.254.25.10
+Address 1: 169.254.25.10
+
+Name:      resolver-service
+Address 1: 198.19.192.170 resolver-service.default.svc.cluster.local
+/ # nslookup resolver
+Server:    169.254.25.10
+Address 1: 169.254.25.10
+
+nslookup: can't resolve 'resolver'
+```
