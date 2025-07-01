@@ -44,23 +44,7 @@
 - 컨테이너가 재시작되면 데이터가 보존되지만 파드가 재시작되면 데이터 손실됨
 - 간단한  캐싱 용도로서 사용
 - 데이터 보존이 필요하지 않을 떄 유용함
-```yaml
-#예시
-apiVersion: v1
-kind: Pod
-metadata:
-  name: my-pod
-spec:
-  containers:
-    - name: my-container
-      image: nginx
-      volumeMounts:
-        - name: my-volume
-          mountPath: /data
-  volumes:
-    - name: my-volume
-      emptyDir: {}
-```
+
 ### 2-2. emptyDir Volume을 공유하는 multi-pod 구성
 > 다음 조건에 맞춰서 nginx 웹서버 pod가 생성한 로그파일을 받아서 STDOUT으로 출력하는 busybox 컨테이너를 구성 하세요.<br>
 > (하나의 deployment에 2개의 container로 구성해야 합니다.)<br><br>
