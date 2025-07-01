@@ -588,7 +588,7 @@ coredns-69c4df9f67-t5cb2   1/1     Running   0          265d
 ![alt text](image-5.png)
 
 1. 파드에서 DNS Query를 수행하면 먼저 파드 내부에 Local DNS Resolver로 전달한다. 여기서 resolv.conf에 구성된 파일을 확인하고 DNS 조회를 수행
-2. NodeLocalDNS는 DNS 요청 결과를 기록해 두는 캐시 역할을 수행하며 빠르게 DNS Query를 처리하도록 돕습니다.
+2. NodeLocalDNS는 DNS 요청 결과를 기록해 두는 캐시 역할을 수행하며 빠르게 DNS Query를 처리 도움을 줌
 3. 만약 캐싱된 정보에 대상이 없을 경우 CoreDNS로 전달
 4. CoreDNS는 Kubernetes 클러스터 내부의 서비스와 리소스에 대한 DNS 조회를 처리 (서비스 조회, 외부 DNS 조회, 캐싱)
 5. CoreDNS 구성은 corefile에 의해 관리되며 필요에 따라 커스터마이징 가능 (kubectl describe cm -n kube-system coredns 명령어를 통해 확인 가능)
