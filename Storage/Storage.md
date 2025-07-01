@@ -66,19 +66,19 @@ spec:
       emptyDir: {}
 ```
 ### 2-2. emptyDir Volume을 공유하는 multi-pod 구성
-> 다음 조건에 맞춰서 nginx 웹서버 pod가 생성한 로그파일을 받아서 STDOUT으로 출력하는 busybox 컨테이너를 구성 하세요.
-> (하나의 deployment에 2개의 container로 구성해야 합니다.)
-> deployment Name: weblog
-> Web container:
-> • Image: nginx:1.17
-> • Volume mount : /var/log/nginx
-> • readwrite
-> Log container:
-> • Image: busybox
-> • Command: /bin/sh, -c, "tail -n+1 -f /data/access.log"
-> • Volume mount : /data
-> • readonly
-> emptyDir 볼륨을 통한 데이터 공유가 이루어져야 합니다.
+> 다음 조건에 맞춰서 nginx 웹서버 pod가 생성한 로그파일을 받아서 STDOUT으로 출력하는 busybox 컨테이너를 구성 하세요.<br>
+> (하나의 deployment에 2개의 container로 구성해야 합니다.)<br><br>
+> deployment Name: weblog<br>
+> Web container:<br>
+> • Image: nginx:1.17<br>
+> • Volume mount : /var/log/nginx<br>
+> • readwrite<br><br>
+> Log container:<br>
+> • Image: busybox<br>
+> • Command: /bin/sh, -c, "tail -n+1 -f /data/access.log"<br>
+> • Volume mount : /data<br>
+> • readonly<br>
+> emptyDir 볼륨을 통한 데이터 공유가 이루어져야 합니다.<br>
 
 
 ## 3. HostPath
@@ -89,9 +89,9 @@ spec:
 - 파드가 재시작되어서 새로운 노드에서 시작할 경우, 새로운 노드의 hostpath를 사용함(이전 노드에서 사용한 hostpath 접근 불가)
 
 ### 3-2. HostPath Volume 구성
->fluentd.yaml 파일에 다음 조건에 맞게 볼륨 마운트를 설정하시오.
->Worker node의 도커 컨테이너 디렉토리를 동일 디렉토리로 pod에 마운트 하시오.
->Worker node의 /var/log 디렉토리를 fluentd Pod에 동일이름의 디렉토리 마운트하시오.
+>fluentd.yaml 파일에 다음 조건에 맞게 볼륨 마운트를 설정하시오.<br>
+>Worker node의 도커 컨테이너 디렉토리를 동일 디렉토리로 pod에 마운트 하시오.<br>
+>Worker node의 /var/log 디렉토리를 fluentd Pod에 동일이름의 디렉토리 마운트하시오.<br>
 ```yaml
 # fluentd.yaml
 apiVersion: apps/v1
@@ -131,16 +131,16 @@ PersistentVolumeClaim
 - 파드나 애플리케이션은 PVC를 사용하여 지속적인 스토리지를 요청하고 PV와 바인딩 가능
 - PVC는 여러 파드에서 공유 및 단독 사용 가능
 ### 4-3. 다음 조건에 맞는 PersistentVolume 을 생성
-> pv001라는 이름으로 size 1Gi, access mode ReadWriteMany를 사용하여 persistent volume을 생성합니다.
-> volume type은 hostPath이고 위치는 /tmp/app-config입니다.
+> pv001라는 이름으로 size 1Gi, access mode ReadWriteMany를 사용하여 persistent volume을 생성합니다.<br>
+> volume type은 hostPath이고 위치는 /tmp/app-config입니다.<br>
 
 ### 4-4. PVC를 사용하는 애플리케이션 Pod 구성
-> 다음의 조건에 맞는 새로운 PersistentVolumeClaim 생성하세요.
-> • Name: pv-volume
-> • Class: app-hostpath-sc
-> • Capacity: 10Mi
-> 생성한 pv-volume PersistentVolumeClaim을 mount하는 Pod 를 생성하세요.
-> • Name: web-server-pod
-> • Image: nginx
-> • Mount path: /usr/share/nginx/html
-> Volume에서 ReadWriteMany 액세스 권한을 가지도록 구성합니다.
+> 다음의 조건에 맞는 새로운 PersistentVolumeClaim 생성하세요.<br>
+> • Name: pv-volume<br>
+> • Class: app-hostpath-sc<br>
+> • Capacity: 10Mi<br><br>
+> 생성한 pv-volume PersistentVolumeClaim을 mount하는 Pod 를 생성하세요.<br>
+> • Name: web-server-pod<br>
+> • Image: nginx<br>
+> • Mount path: /usr/share/nginx/html<br><br>
+> Volume에서 ReadWriteMany 액세스 권한을 가지도록 구성합니다.<br>
