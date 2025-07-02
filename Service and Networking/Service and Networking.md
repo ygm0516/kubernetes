@@ -57,8 +57,7 @@ spec:
   - name: myweb2-netshoot
     image: nicolaka/netshoot
     command: ["/bin/bash"]
-    args: ["-c", "while true; do sleep 5; curl localhost; done"] # 포드가 종료되지 않도록 유지합니다
-
+    args: ["-c", "while true; do sleep 5; curl localhost; done"] # pod가 종료되지 않도록 유지
   terminationGracePeriodSeconds: 0
 ```
 ```bash
