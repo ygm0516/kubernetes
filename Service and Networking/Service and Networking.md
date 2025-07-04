@@ -462,7 +462,6 @@ $ kubectl expose pod nginx --name=front-end-svc --port=30080 --target-port=http 
 $ kubectl apply -f nginx-name-svc.yaml
 service/front-end-svc exposed
 
-
 ```
 
 ## 3. Network Policy
@@ -490,6 +489,9 @@ service/front-end-svc exposed
 $ kubectl run poc --image=nginx --port=80 -l app=poc -n default --dry-run=client -o yaml > networkpolicy-custom.yaml
 $ kubectl apply -f networkpolicy-custom.yaml 
 pod/poc created
+
+$ kubectl expose pod poc --port=80 --target-port=80 --name=poc --type=ClusterIP --namespace=default
+service/poc exposed
 
 $ vi allow-webfrom-customera.yaml
 apiVersion: networking.k8s.io/v1
@@ -522,6 +524,47 @@ namespace/customera created
 $ kubectl label namespace customera partition=customera
 namespace/customera labeled
 
+
+#테스트용 파드 생성
+$ kubectl run test-allowed -n customera --image=curlimages/curl --restart=Never --command -- sleep 3600
+pod/test-allowed created
+
+#정상 접근 확인
+$ kubectl exec -it -n customera test-allowed -- curl -s http://poc.default.svc.cluster.local
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+
+$ kubectl create ns testns
+namespace/testns created
+
+#테스트용 파드 생성
+$ kubectl run test-denied -n testns  --image=curlimages/curl --restart=Never --command -- sleep 3600
+pod/test-denied created
+
+#testns 네임스페이스는 라벨이 없기떄문에 접근 불가
+$ kubectl exec -it -n testns test-denied -- curl -s http://poc.default.svc.cluster.local
+command terminated with exit code 130..
 ```
 
 
@@ -556,15 +599,49 @@ service/ingress-nginx-svc exposed
 $ kubectl expose pod app-nginx --port=80 --name=app-nginx-svc -n ingress-yang
 service/app-nginx-svc exposed
 
+$ kubectl get all -n ingress-yang
+NAME                READY   STATUS    RESTARTS   AGE
+pod/app-nginx       1/1     Running   0          23s
+pod/ingress-nginx   1/1     Running   0          34s
+
+NAME                        TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
+service/app-nginx-svc       ClusterIP   10.233.61.75    <none>        80/TCP    14s
+service/ingress-nginx-svc   ClusterIP   10.233.58.113   <none>        80/TCP    18s
 
 $ vi ingress-nginx.yaml
-##수정 필요
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: example-ingress
+  namespace: ingress-yang
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: "test.foo.com"
+    http:
+      paths:
+      - path: "/app"
+        pathType: Prefix
+        backend:
+          service:
+            name: ingress-nginx-svc
+            port:
+              number: 80
+      - path: "/"
+        pathType: Prefix
+        backend:
+          service:
+            name: app-nginx-svc
+            port:
+              number: 80
 
 $ kubectl apply -f ingress.yaml 
 ingress.networking.k8s.io/example-ingress created
-
 ```
-
+![alt text](image-6.png)
+![alt text](image-7.png)
 
 ## 5. DNS
 ### 5-1. 서비스 및 파드용 DNS 에 대해 간략히 작성
