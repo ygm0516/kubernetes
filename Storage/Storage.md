@@ -46,8 +46,8 @@
 - 데이터 보존이 필요하지 않을 떄 유용함
 
 ### 2-2. emptyDir Volume을 공유하는 multi-pod 구성
-> 다음 조건에 맞춰서 nginx 웹서버 pod가 생성한 로그파일을 받아서 STDOUT으로 출력하는 busybox 컨테이너를 구성 하세요.<br>
-> (하나의 deployment에 2개의 container로 구성해야 합니다.)<br><br>
+> 다음 조건에 맞춰서 nginx 웹서버 pod가 생성한 로그파일을 받아서 STDOUT으로 출력하는 busybox 컨테이너를 구성<br>
+> (하나의 deployment에 2개의 container로 구성.)<br><br>
 > deployment Name: weblog<br>
 > Web container:<br>
 > • Image: nginx:1.17<br>
@@ -58,7 +58,7 @@
 > • Command: /bin/sh, -c, "tail -n+1 -f /data/access.log"<br>
 > • Volume mount : /data<br>
 > • readonly<br>
-> emptyDir 볼륨을 통한 데이터 공유가 이루어져야 합니다.<br>
+> emptyDir 볼륨을 통한 데이터 공유가 이루어져야함<br>
 
 
 ## 3. HostPath
@@ -111,16 +111,16 @@ PersistentVolumeClaim
 - 파드나 애플리케이션은 PVC를 사용하여 지속적인 스토리지를 요청하고 PV와 바인딩 가능
 - PVC는 여러 파드에서 공유 및 단독 사용 가능
 ### 4-3. 다음 조건에 맞는 PersistentVolume 을 생성
-> pv001라는 이름으로 size 1Gi, access mode ReadWriteMany를 사용하여 persistent volume을 생성합니다.<br>
-> volume type은 hostPath이고 위치는 /tmp/app-config입니다.<br>
+> pv001라는 이름으로 size 1Gi, access mode ReadWriteMany를 사용하여 persistent volume을 생성<br>
+> volume type은 hostPath이고 위치는 /tmp/app-config<br>
 
 ### 4-4. PVC를 사용하는 애플리케이션 Pod 구성
-> 다음의 조건에 맞는 새로운 PersistentVolumeClaim 생성하세요.<br>
+> 다음의 조건에 맞는 새로운 PersistentVolumeClaim 생성<br>
 > • Name: pv-volume<br>
 > • Class: app-hostpath-sc<br>
 > • Capacity: 10Mi<br><br>
-> 생성한 pv-volume PersistentVolumeClaim을 mount하는 Pod 를 생성하세요.<br>
+> 생성한 pv-volume PersistentVolumeClaim을 mount하는 Pod 를 생성<br>
 > • Name: web-server-pod<br>
 > • Image: nginx<br>
 > • Mount path: /usr/share/nginx/html<br><br>
-> Volume에서 ReadWriteMany 액세스 권한을 가지도록 구성합니다.<br>
+> Volume에서 ReadWriteMany 액세스 권한을 가지도록 구성<br>
