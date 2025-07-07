@@ -219,7 +219,7 @@ Events:            <none>
 ### 4-4. PVC를 사용하는 애플리케이션 Pod 구성
 > 다음의 조건에 맞는 새로운 PersistentVolumeClaim 생성<br>
 > • Name: pvc-yang<br>
-> • Class: app-hostpath-sc<br>
+> • Class: cp-storageclass<br>
 > • Capacity: 10Mi<br><br>
 > 생성한 pvc-yang PersistentVolumeClaim을 mount하는 Pod 를 생성<br>
 > • Name: web-server-pod<br>
