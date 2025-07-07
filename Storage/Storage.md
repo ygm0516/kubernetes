@@ -1,7 +1,6 @@
 # Storage
 
 [Storage](https://kubernetes.io/ko/docs/concepts/storage/) <br/>
-[Network Policies](https://kubernetes.io/docs/concepts/services-networking/network-policies/) <br/>
 
 
 - [Storage](#storage)
