@@ -61,6 +61,49 @@
 > emptyDir 볼륨을 통한 데이터 공유가 이루어져야함<br>
 
 
+```bash
+$ kubectl create deployment weblog --image=nginx:1.17 --dry-run=client -o yaml > weblog.yaml
+$ vi weblog.yaml 
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: weblog
+  name: weblog
+  namespace: yang
+spec:
+  containers:
+  - image: nginx:1.17
+    name: weblog
+    volumeMounts:
+    - mountPath: /var/log/nginx
+      name: weblog
+  - image: busybox
+    name: log
+    args: [/bin/sh, -c, 'tail -n+1 -f /data/access.log']
+    volumeMounts:
+    - mountPath: /data
+      name: weblog
+      readOnly: true
+  volumes:
+  - name: weblog
+    emptyDir: {}
+
+$ kubectl apply -f weblog.yaml 
+pod/weblog created
+
+$ kubectl get pod -n yang
+NAME     READY   STATUS    RESTARTS   AGE
+weblog   2/2     Running   0          18s
+
+$ kubectl exec -n yang -c weblog pod/weblog -- /bin/sh -c "echo 'log-test-entry' >> /var/log/nginx/access.log"
+
+$ kubectl logs -n yang pod/weblog -c log
+log-test-entry #정상 동작 확인
+
+```
+
 ## 3. HostPath
 ### 3-1. HostPath Volume에 대해 간략히 작성
 - 파드가 실행된 호스트이 파일이나 디렉터리를 파드에 마운트
@@ -69,27 +112,44 @@
 - 파드가 재시작되어서 새로운 노드에서 시작할 경우, 새로운 노드의 hostpath를 사용함(이전 노드에서 사용한 hostpath 접근 불가)
 
 ### 3-2. HostPath Volume 구성
->fluentd.yaml 파일에 다음 조건에 맞게 볼륨 마운트를 설정하시오.<br>
->Worker node의 도커 컨테이너 디렉토리를 동일 디렉토리로 pod에 마운트 하시오.<br>
->Worker node의 /var/log 디렉토리를 fluentd Pod에 동일이름의 디렉토리 마운트하시오.<br>
-```yaml
-# fluentd.yaml
-apiVersion: apps/v1
-kind: DaemonSet
+>fluentd.yaml 파일에 다음 조건에 맞게 볼륨 마운트를 설정<br>
+>Worker node의 도커 컨테이너 디렉토리를 동일 디렉토리로 pod에 마운트<br>
+>Worker node의 /var/log 디렉토리를 fluentd Pod에 동일이름의 디렉토리 마운트<br>
+```bash
+$ sudo mkdir -p /var/lib/docker
+$ vi fluentd.yaml
+apiVersion: v1
+kind: Pod
 metadata:
-  name: fluentd
+  name: fluentd
+  namespace: yang
 spec:
-  selector:
-    matchLabels:
-      name: fluentd
-  template:
-    metadata:
-      labels:
-        name: fluentd
-    spec:
-      containers:
-      - name: fluentd
-        image: fluentd
+  nodeName: qna-cluster-001 #쉬운 확인을 위해 추가
+  containers:
+  - name: fluentd
+    image: fluent/fluentd
+    volumeMounts:
+    - name: docker-logs
+      mountPath: /var/lib/docker
+    - name: host-logs
+      mountPath: /var/log
+  volumes:
+  - name: docker-logs
+    hostPath:
+      path: /var/lib/docker
+      type: Directory
+  - name: host-logs
+    hostPath:
+      path: /var/log
+      type: Directory
+
+
+$ kubectl get pod -n yang
+NAME             READY   STATUS    RESTARTS   AGE
+fluentd          1/1     Running   0          21s
+
+$ kubectl exec -it fluentd -n yang -- ls /var/lib | grep docker
+apt  docker  dpkg  misc  pam  shells.state  systemd
 ```
 
 
@@ -113,6 +173,48 @@ PersistentVolumeClaim
 ### 4-3. 다음 조건에 맞는 PersistentVolume 을 생성
 > pv001라는 이름으로 size 1Gi, access mode ReadWriteMany를 사용하여 persistent volume을 생성<br>
 > volume type은 hostPath이고 위치는 /tmp/app-config<br>
+```bash
+$ vi pv001.yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv001-yang
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+  - ReadWriteMany
+  hostPath:
+    path: /tmp/app-config
+
+$ kubectl apply -f pv001.yaml 
+persistentvolume/pv001-yang created
+
+$ kubectl get pv
+NAME         CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS      CLAIM   STORAGECLASS   VOLUMEATTRIBUTESCLASS   REASON   AGE
+pv001-yang   1Gi        RWX            Retain           Available                          <unset>                          20s
+
+$ kubectl describe pv pv001-yang 
+Name:            pv001-yang
+Labels:          <none>
+Annotations:     <none>
+Finalizers:      [kubernetes.io/pv-protection]
+StorageClass:    
+Status:          Available
+Claim:           
+Reclaim Policy:  Retain
+Access Modes:    RWX
+VolumeMode:      Filesystem
+Capacity:        1Gi
+Node Affinity:   <none>
+Message:         
+Source:
+    Type:          HostPath (bare host directory volume)
+    Path:          /tmp/app-config
+    HostPathType:  
+Events:            <none>
+
+```
 
 ### 4-4. PVC를 사용하는 애플리케이션 Pod 구성
 > 다음의 조건에 맞는 새로운 PersistentVolumeClaim 생성<br>
@@ -124,3 +226,108 @@ PersistentVolumeClaim
 > • Image: nginx<br>
 > • Mount path: /usr/share/nginx/html<br><br>
 > Volume에서 ReadWriteMany 액세스 권한을 가지도록 구성<br>
+
+```bash
+$ vi pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-yang
+  namespace: yang
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Mi
+  storageClassName: cp-storageclass
+
+$ kubectl apply -f pvc.yaml 
+persistentvolumeclaim/pvc-yang created
+
+$ kubectl get pvc -n yang
+NAME       STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS      VOLUMEATTRIBUTESCLASS   AGE
+pvc-yang   Bound    pvc-e6d36418-497e-492f-9fde-67328981f16a   10Mi       RWX            cp-storageclass   <unset>                 4s
+
+$ vi pvc-pod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: web-server-pod
+  namespace: yang
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+    volumeMounts:
+    - mountPath: /usr/share/nginx/html
+      name: html-volume
+  volumes:
+  - name: html-volume
+    persistentVolumeClaim:
+      claimName: pvc-yang
+
+$ kubectl apply -f pvc-pod.yaml 
+pod/web-server-pod created
+
+$ kubectl describe pod web-server-pod -n yang
+Name:             web-server-pod
+Namespace:        yang
+Priority:         0
+Service Account:  default
+Node:             qna-cluster-004/172.16.1.15
+Start Time:       Mon, 07 Jul 2025 14:00:42 +0900
+Labels:           <none>
+Annotations:      cni.projectcalico.org/containerID: deeee773ef87e3f7e3d5b0224793771fc6921b2359fb3d6d820defa00540165f
+                  cni.projectcalico.org/podIP: 10.233.90.159/32
+                  cni.projectcalico.org/podIPs: 10.233.90.159/32
+Status:           Running
+IP:               10.233.90.159
+IPs:
+  IP:  10.233.90.159
+Containers:
+  nginx:
+    Container ID:   cri-o://5cbb4f88985f233656869fce8e4245d87df03debe9dc24ac0a58f0522d90a53e
+    Image:          nginx
+    Image ID:       docker.io/library/nginx@sha256:13920fe73b382aa9017f7cf38b1377bc46ffb605fe980eb00f61aad26311ebf7
+    Port:           <none>
+    Host Port:      <none>
+    State:          Running
+      Started:      Mon, 07 Jul 2025 14:00:45 +0900
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /usr/share/nginx/html from html-volume (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-264j4 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  html-volume:
+    Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)
+    ClaimName:  pvc-yang
+    ReadOnly:   false
+  kube-api-access-264j4:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  36s   default-scheduler  Successfully assigned yang/web-server-pod to qna-cluster-004
+  Normal  Pulling    35s   kubelet            Pulling image "nginx"
+  Normal  Pulled     33s   kubelet            Successfully pulled image "nginx" in 2.386s (2.386s including waiting). Image size: 196385142 bytes.
+  Normal  Created    33s   kubelet            Created container nginx
+  Normal  Started    33s   kubelet            Started container nginx
+```
