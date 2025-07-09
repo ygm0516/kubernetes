@@ -12,6 +12,7 @@
 ## 1. 모니터링
 ### 1-1. kube-api 의 로그 모니터링 후 'error' 오류가 있는 로그 라인 추출(Extract)해서 /subtask/CUSTOM-LOG001 파일에 저장후 출력
 ```bash
+$ mkdir subtask
 $ kubectl logs -n kube-system -l component=kube-apiserver | grep Error | tee subtask/CUSTOM-LOG001
 $ cat subtask/CUSTOM-LOG001
 E0707 00:23:50.932402       1 dispatcher.go:214] "Unhandled Error" err="failed calling webhook \"linkerd-proxy-injector.linkerd.io\": failed to call webhook: Post \"https://linkerd-proxy-injector.linkerd.svc:443/?timeout=10s\": service \"linkerd-proxy-injector\" not found" logger="UnhandledError"

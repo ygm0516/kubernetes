@@ -149,6 +149,8 @@ apt  docker  dpkg  misc  pam  shells.state  systemd
 
 
 ## 4. PV(Persistent Volume) & PVC(Persistent Volume Claim)
+> 참고 이미지
+![alt text](image.png)
 ### 4-1. PV에 대해 간략히 작성
 PersistentVolume 
 
@@ -165,6 +167,7 @@ PersistentVolumeClaim
 - pvc는 네임스페이스 내에서 사용되고 pv와 연결됨
 - 파드나 애플리케이션은 PVC를 사용하여 지속적인 스토리지를 요청하고 PV와 바인딩 가능
 - PVC는 여러 파드에서 공유 및 단독 사용 가능
+  
 ### 4-3. 다음 조건에 맞는 PersistentVolume 을 생성
 > pv001라는 이름으로 size 1Gi, access mode ReadWriteMany를 사용하여 persistent volume을 생성<br>
 > volume type은 hostPath이고 위치는 /tmp/app-config<br>
