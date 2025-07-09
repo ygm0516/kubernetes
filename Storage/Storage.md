@@ -2,7 +2,6 @@
 
 [Storage](https://kubernetes.io/ko/docs/concepts/storage/) <br/>
 
-
 - [Storage](#storage)
   - [1. Kubernetes Storage](#1-kubernetes-storage)
     - [1-1. Kubernetes Storage 구조를 이해하고 내용을 간략히 작성](#1-1-kubernetes-storage-구조를-이해하고-내용을-간략히-작성)
@@ -36,7 +35,6 @@
 ## 2. emptyDir
 ### 2-1. emptyDir Volume에 대해 간략히 작성
 - pod 사이에 데이터를 공유하는 일시적인 스토리지를 제공 (파드가 삭제되면 데이터가 손실됨)
-- 컨테이너가 재시작되면 데이터가 보존되지만 파드가 재시작되면 데이터 손실됨
 - 간단한  캐싱 용도로서 사용
 - 데이터 보존이 필요하지 않을 떄 유용함
 
@@ -102,8 +100,7 @@ log-test-entry #정상 동작 확인
 ## 3. HostPath
 ### 3-1. HostPath Volume에 대해 간략히 작성
 - 파드가 실행된 호스트이 파일이나 디렉터리를 파드에 마운트
-- emptyDir과는 다르게 실제 있는 파일이나 디렉터리를 마운트
-- 파드를 재시작해도 호스트에 데이터가 남아있음
+- emptyDir과의 차이: path를 파드들이 공유하기 때문에 파드가 죽어도 노드의 볼륨은 안 죽음
 - 파드가 재시작되어서 새로운 노드에서 시작할 경우, 새로운 노드의 hostpath를 사용함(이전 노드에서 사용한 hostpath 접근 불가)
 
 ### 3-2. HostPath Volume 구성
@@ -119,7 +116,7 @@ metadata:
   name: fluentd
   namespace: yang
 spec:
-  nodeName: qna-cluster-001 #쉬운 확인을 위해 추가
+  nodeName: qna-cluster-001
   containers:
   - name: fluentd
     image: fluent/fluentd
@@ -152,15 +149,12 @@ apt  docker  dpkg  misc  pam  shells.state  systemd
 > 참고 이미지
 ![alt text](image.png)
 ### 4-1. PV에 대해 간략히 작성
-PersistentVolume 
-
 - 클러스터 내의 지속적인 스토리지
 - 클러스터 수준에서 관리됨, 네임스페이스와 무관하게 설정
 - 수동 생성, 클러스터 관리자에 의해 자동으로 생성 가능
-- 파드에서 pv를 사용하려면 pvc를 통해 바인딩해야 함
+- 파드에서 pv를 사용하려면 pvc를 통해 바인딩해야 함(PV에 바로 연결하지 않고 PVC를 통하여 연결됨)
+  - 파드를 PV에 바로 연결하지 않는 이유는 쿠버네티스가 User와 Admin으로 영역을 나눠서 관리하기 때문
 ### 4-2. PVC에 대해 간략히 작성
-PersistentVolumeClaim
-
 - 애플리케이션이 pv를 요청하고 바인딩하기 위한 객체
 - 동적 프로비저닝을 요청할 수 있음
     * 동적 프로비저닝: StorageClass와 프로비저너를 사용하여 자동으로 PV를 생성해서 PVC와 Bound 시키는 기능.. pv를 직접 만들 필요가 없음
