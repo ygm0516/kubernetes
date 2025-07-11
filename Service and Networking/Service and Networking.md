@@ -584,52 +584,48 @@ command terminated with exit code 130..
 > "test.foo.com/app" 접속했을 때 app-nginx 서비스로 연결<br>
 
 ```bash
-$ kubectl create namespace ingress-yang
-namespace/ingress created
-
-$ kubectl run ingress-nginx --image=nginx --port=80 -n ingress-yang
+$ kubectl run ingress-nginx --image=nginx --port=80
 pod/ingress-nginx created
 
-$ kubectl run app-nginx --image=nginx --port=80 -n ingress-yang
-pod/app-nginx created
-
-$ kubectl expose pod ingress-nginx --port=80 --name=ingress-nginx-svc -n ingress-yang
+$ kubectl expose pod ingress-nginx --name=ingress-nginx-svc --port=80 --type=ClusterIP
 service/ingress-nginx-svc exposed
 
-$ kubectl expose pod app-nginx --port=80 --name=app-nginx-svc -n ingress-yang
+$ kubectl run app-nginx --image=nginx --port=80
+pod/app-nginx created
+
+$ kubectl expose pod app-nginx --name=app-nginx-svc --port=80 --type=ClusterIP
 service/app-nginx-svc exposed
 
-$ kubectl get all -n ingress-yang
-NAME                READY   STATUS    RESTARTS   AGE
-pod/app-nginx       1/1     Running   0          23s
-pod/ingress-nginx   1/1     Running   0          34s
+$ kubectl get all
+NAME                                                                  READY   STATUS    RESTARTS   AGE
+pod/app-nginx                                                         1/1     Running   0          71s
+pod/ingress-nginx                                                     1/1     Running   0          89s
+pod/my-ingress-controller-ingress-nginx-controller-76f69d679d-wjxxz   1/1     Running   0          19m
 
-NAME                        TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
-service/app-nginx-svc       ClusterIP   10.233.61.75    <none>        80/TCP    14s
-service/ingress-nginx-svc   ClusterIP   10.233.58.113   <none>        80/TCP    18s
+NAME                                                               TYPE           CLUSTER-IP       EXTERNAL-IP                                                                    PORT(S) 
+service/app-nginx-svc                                              ClusterIP      198.19.133.6     <none>                                                                         80/TCP  
+service/ingress-nginx-svc                                          ClusterIP      198.19.198.226   <none>                                                                         80/TCP 
+
 
 $ vi ingress-nginx.yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: example-ingress
-  namespace: ingress-yang
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+ name: ingress-nginx
 spec:
-  ingressClassName: nginx
+  ingressClassName: "nginx"
   rules:
   - host: "test.foo.com"
     http:
       paths:
-      - path: "/app"
+      - path: /
         pathType: Prefix
         backend:
           service:
             name: ingress-nginx-svc
             port:
               number: 80
-      - path: "/"
+      - path: /app
         pathType: Prefix
         backend:
           service:
@@ -637,11 +633,23 @@ spec:
             port:
               number: 80
 
+
 $ kubectl apply -f ingress.yaml 
-ingress.networking.k8s.io/example-ingress created
+ingress.networking.k8s.io/ingress-nginx created
 ```
+
+- etc/hosts 추가 (ingress controller ip)
+```bash
+27.96.148.226 test.foo.com
+```
+
+- 접속 확인
+> http://test.foo.com/
 ![alt text](image-6.png)
+
+>http://test.foo.com/app
 ![alt text](image-7.png)
+
 
 ## 5. DNS
 ### 5-1. 서비스 및 파드용 DNS 에 대해 간략히 작성
