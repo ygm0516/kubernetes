@@ -349,7 +349,6 @@ spec:
 2. NodePort
 - 외부에서 Node IP에 대한 접속 Port를 지정하는 것
 - Node IP:NodePort로 요청이 들어올 경우 Pod IP:TargetPort로 트래픽을 전달
-![alt text](image-6.png)
 
 ```yaml
 apiVersion: v1
@@ -367,7 +366,7 @@ spec:
     type: frontend
 ```
 
-3. LoadBalancer
+1. LoadBalancer
 - 외부 LoadBalancer를 제공하는 클라우드 환경을 고려하여, 해당 Loadbalancer를 Service로 프로비저닝할 수 있는 Type
 ```yaml
 apiVersion: v1
