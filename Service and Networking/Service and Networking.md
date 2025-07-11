@@ -366,7 +366,7 @@ spec:
     type: frontend
 ```
 
-1. LoadBalancer
+3. LoadBalancer
 - 외부 LoadBalancer를 제공하는 클라우드 환경을 고려하여, 해당 Loadbalancer를 Service로 프로비저닝할 수 있는 Type
 ```yaml
 apiVersion: v1
